@@ -3,7 +3,7 @@
 # Usage: tools/emu/loadcode.sh <outdir> "<logbook>" [frames=500] [extra lua run after loading]
 #   TYPE=1 types it with real button presses (typeguide.mjs) instead of injecting it
 # Writes <outdir>/g1.png and g1.ram (128 KB WRAM) and prints "R <stage> <story> <$19F6 table>".
-# Env: MESEN (default K:\Emulators\Mesen\Mesen.exe), ROM (default roms/ USA ROM).
+# Env: MESEN (default Mesen.exe on PATH, see mesen.py), ROM (default roms/ USA ROM).
 here=$(cd "$(dirname "$0")" && pwd)
 d=$1; mkdir -p "$d"
 {
@@ -17,4 +17,4 @@ d=$1; mkdir -p "$d"
   echo "$4"
   echo "at(function() shot('g1') dump('g1') local t={} for a=0x19F6,0x1A05,2 do t[#t+1]=string.format('%04x',emu.read16(a,emu.memType.snesWorkRam)) end print('R', emu.read(0x82,emu.memType.snesWorkRam), emu.read(0x8E,emu.memType.snesWorkRam), table.concat(t,' ')) end)"
 } > "$d/t.lua"
-MESEN="${MESEN:-K:\\Emulators\\Mesen\\Mesen.exe}" python "$here/mesen.py" "$d/t.lua" "${ROM:-$here/../../roms/Legend of the Mystical Ninja, The (USA).sfc}" | grep -v "^wrote\|^dumped\|^rc 0"
+python "$here/mesen.py" "$d/t.lua" "${ROM:-$here/../../roms/Legend of the Mystical Ninja, The (USA).sfc}" | grep -v "^wrote\|^dumped\|^rc 0"
