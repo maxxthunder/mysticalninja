@@ -24,17 +24,18 @@ export const VERSIONS = { us: [ALPHABET, XOR], jp: [KANA, XOR], jp10: [KANA, XOR
 
 // [name, bits] in pack order. RAM: common fields are $82 $AA $8E $A8 $19F6; player fields are offsets from
 // $1A90 (P1) / $1B40 (P2). BCD fields hold decimal digits: ryo, pow, pieces, bombs.
-export const LONG_COMMON = [['stage', 4], ['out', 2], ['story', 4], ['players', 2], ['event', 4]];
-export const LONG_PLAYER = [['ryo', 16], ['ryo5', 4], ['lives', 4], ['health', 5], ['pieces', 4], ['bombs', 6],
+const LONG_COMMON = [['stage', 4], ['out', 2], ['story', 4], ['players', 2], ['event', 4]];
+const LONG_PLAYER = [['ryo', 16], ['ryo5', 4], ['lives', 4], ['health', 5], ['pieces', 4], ['bombs', 6],
   ['maxHealth', 5], ['pow', 5], ['jutsu1', 1], ['jutsu2', 1], ['jutsu3', 1], ['jutsu4', 1],
   ['goldHelmet', 8], ['ironHelmet', 8], ['strawHat', 8], ['goldArmor', 8], ['chainArmor', 8], ['strawCoat', 8],
   ['sandals', 8], ['pizza', 8], ['slice', 8], ['hamburger', 8],
   ['pass', 1], ['text', 1], ['elephant1', 1], ['elephant2', 1], ['elephant3', 1], ['elephant4', 1], ['weapon', 2]];
-export const SHORT_COMMON = [['stage', 4], ['players', 2]];
-export const SHORT_PLAYER = [['jutsu1', 1], ['jutsu2', 1], ['jutsu3', 1], ['jutsu4', 1]];
+const SHORT_COMMON = [['stage', 4], ['players', 2]];
+const SHORT_PLAYER = [['jutsu1', 1], ['jutsu2', 1], ['jutsu3', 1], ['jutsu4', 1]];
 
+const fields = long => long ? [LONG_COMMON, LONG_PLAYER] : [SHORT_COMMON, SHORT_PLAYER];  // [common, per player]
 const blocks = s => {
-  const [common, player] = s.long ? [LONG_COMMON, LONG_PLAYER] : [SHORT_COMMON, SHORT_PLAYER];
+  const [common, player] = fields(s.long);
   const out = [[s, common]];
   for (const p of [0, 1]) if (s.players & (1 << p)) out.push([s.p[p], player]);
   return out;
@@ -93,7 +94,7 @@ export function encode(s, ver = 'us') {
 // What each symbol of encode(s) holds: a list of field names per symbol ('p0.ryo' for a player field)
 export function layout(s) {
   const out = [['length'], ['key']];
-  const [common, player] = s.long ? [LONG_COMMON, LONG_PLAYER] : [SHORT_COMMON, SHORT_PLAYER];
+  const [common, player] = fields(s.long);
   const add = (fields, pre) => {
     const at = out.length;
     let n = 0;
@@ -122,13 +123,14 @@ export function decode(text, ver = 'us') {
   const long = t.length > 7, key = ((v[1] ^ 0x15) - 7) & 63, n = ((v[0] ^ 0x2A) - key) & 63;
   // the entry screen zeroes the byte after the last glyph; past that the decoder reads leftovers, taken as 0 here
   const d = [...v.slice(2, 2 + n + 2).map((c, i) => ((c ^ xor[i]) - key) & 63), ...v.slice(2 + n + 2), ...Array(64).fill(0)];
-  let [s, pos] = unpack(d, 0, long ? LONG_COMMON : SHORT_COMMON);
+  const [common, player] = fields(long);
+  let [s, pos] = unpack(d, 0, common);
   Object.assign(s, { long, key, p: [{}, {}] });
   if (!long) Object.assign(s, { out: 0, story: 0, event: 0 });
-  const list = [[s, long ? LONG_COMMON : SHORT_COMMON]];
+  const list = [[s, common]];
   for (const p of [0, 1]) if (s.players & (1 << p)) {
-    [s.p[p], pos] = unpack(d, pos, long ? LONG_PLAYER : SHORT_PLAYER);
-    list.push([s.p[p], long ? LONG_PLAYER : SHORT_PLAYER]);
+    [s.p[p], pos] = unpack(d, pos, player);
+    list.push([s.p[p], player]);
   }
   const [c0, c1] = checksum(list);
   if (n !== t.length - 4) return { error: 'length-char', state: s };
@@ -143,3 +145,18 @@ export function decode(text, ver = 'us') {
 export const fromBCD = v => /^\d+$/.test(v = v.toString(16)) ? +v : null;
 export const toBCD = n => parseInt(n, 16);
 export const ryo = p => { const lo = fromBCD(p.ryo), hi = p.ryo5 > 9 ? null : p.ryo5; return lo === null || hi === null ? null : hi * 10000 + lo; };
+
+// The logbook entry screen's grid, row by row; END sits at row 6, column 8. kana: the Japanese release's grid.
+export const GRID = { us: ['BDGHJKLMNP', 'QRTVWXYZ#$', 'bdghjklmnp', 'qrtvwxyz%&', '0123456789', '!"^*+-/:;<', '=>?@'],
+  kana: ['あいうえおやゆよわ', 'かきくけこらりるれろ', 'さしすせそがぎぐげご', 'たちつてとざじずぜぞ', 'なにぬねのだぢづでど', 'はひふへほぱぴぷぺぽ', 'まみむめも'] };
+// The presses from symbol k-1 to symbol k of pw (k = pw.length: END), as [['right', 3], ['down', 1]]. Checked in Mesen on
+// both grids: the cursor starts on the first symbol, the bottom row skips its gap (@ or も → ← is one press), and the kana
+// grid's top row has no column 9 (right from わ drops to ろ), so go across first except out of the bottom row or up to column 9.
+export function moves(pw, k) {
+  const rows = GRID[/[ぁ-ゖ]/.test(pw) ? 'kana' : 'us'];
+  const at = i => { if (i < 0) return [0, 0]; if (i >= pw.length) return [6, 8];
+    const r = rows.findIndex(row => row.includes(pw[i])); return [r, [...rows[r]].indexOf(pw[i])]; };
+  const [r0, c0] = at(k - 1), [r, c] = at(k), h = ['right', c - c0], v = ['down', r - r0];
+  const plan = k === pw.length && r0 === 6 ? [['right', 6 - c0]] : r0 === 6 || (r0 === 0 && c === 9) ? [v, h] : [h, v];
+  return plan.filter(([, n]) => n).map(([dir, n]) => n > 0 ? [dir, n] : [dir === 'right' ? 'left' : 'up', -n]);
+}

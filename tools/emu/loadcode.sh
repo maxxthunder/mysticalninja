@@ -10,7 +10,7 @@ d=$1; mkdir -p "$d"
   cat "$here/logbook.lua"
   if [ "$TYPE" = 1 ]; then node "$here/typeguide.mjs" "$2"
   else
-    python -I "$here/mkpw.py" "$2" ${ROM:+"$ROM"}
+    node "$here/mkpw.mjs" "$2" ${ROM:+"$ROM"}
     echo 'wait(10) for i=1,6 do press({down=true},2) wait(10) end for i=1,8 do press({right=true},2) wait(10) end press({b=true},2)'
   fi
   echo "wait(${3:-500})"

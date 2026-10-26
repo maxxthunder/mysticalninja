@@ -311,7 +311,7 @@ body:has(#big[open]) { overflow: hidden; }
 </div>
 
 <script type="module">
-import { ALPHABET, KANA, VERSIONS, SHOW, encode, decode, clean, layout, fromBCD, toBCD, ryo } from './mninja.js';
+import { ALPHABET, KANA, VERSIONS, SHOW, GRID, moves, encode, decode, clean, layout, fromBCD, toBCD, ryo } from './mninja.js';
 
 const ZONES = [['Zone 1', 'Edo'], ['Zone 2', 'Shikoku'], ['Zone 3', 'Awa'], ['Zone 4', 'Harima'], ['Zone 5', 'Iga'], ['Zone 6', ''],
   ['Zone 7', 'Izumo'], ['Zone 8', 'Ryukyu'], ['Zone 8½', 'no start point'], ['Zone 9', 'the castle']];
@@ -395,10 +395,9 @@ const start = s => s.long && s.stage === 0 ? 1 : s.long && s.stage === 8 ? 9 : s
 const zone = s => { const z = start(s);
   return ZONES[z] ? ZONES[z].filter(Boolean).join(' · ') : `zone value ${s.stage}`; };
 const fmtRyo = p => { const r = ryo(p); return r === null ? 'junk digits' : r.toLocaleString('en-US') + ' ryo'; };
-const glyphs = pw => [...pw].map(c => SHOW[c] ?? c).join('');
 // groups of five, like the logbook screen; a short code stays in one piece
 const groups = pw => pw.length <= 7 ? [pw] : pw.match(/.{1,5}/gu) ?? [];
-const spaced = pw => groups(glyphs(pw)).join(' ');
+const spaced = pw => groups([...pw].map(c => SHOW[c] ?? c).join('')).join(' ');
 // mark: { symbol index: class }; a symbol the game doesn't have is drawn as plain text
 function codeHTML(pw, mark = {}, set = abc()) {
   let n = 0;
@@ -517,12 +516,18 @@ form.addEventListener('input', e => {
 glitch.addEventListener('change', () => setGlitch(glitch.checked));
 // Max everything, New game and loading a logbook replace your edits: offer to put them back
 let undoTimer;
-function undoable(what) {
+function undoable(what, msg = [$('perr').className, [...$('perr').childNodes]]) {  // msg: the decoder's message, which goes back too
   const prev = [structuredClone(state), shown, base], b = document.createElement('button');
   b.type = 'button';
   b.className = 'ghost';
   b.textContent = 'Undo';
-  b.onclick = () => { [state, shown, base] = prev; $('status').textContent = ''; setGlitch(isGlitch(state) || G()); };
+  b.onclick = () => {
+    [state, shown, base] = prev;
+    $('perr').className = msg[0];
+    $('perr').replaceChildren(...msg[1]);
+    $('status').textContent = '';
+    setGlitch(isGlitch(state) || G());
+  };
   $('status').replaceChildren(`${what}. `, b);
   clearTimeout(undoTimer);
   undoTimer = setTimeout(() => { $('status').textContent = ''; }, 8000);
@@ -559,13 +564,9 @@ for (const type of ['pointerover', 'focusin']) form.addEventListener(type, e => 
 form.addEventListener('pointerleave', () => mark(null));
 form.addEventListener('focusout', () => mark(null));
 
-// Typing guide: the entry screen's grid; the cursor starts on the first symbol and END is at the bottom right
-const KB = { us: ['BDGHJKLMNP', 'QRTVWXYZ#$', 'bdghjklmnp', 'qrtvwxyz%&', '0123456789', '!"^*+-/:;<', '=>?@'],
-  kana: ['あいうえおやゆよわ', 'かきくけこらりるれろ', 'さしすせそがぎぐげご', 'たちつてとざじずぜぞ', 'なにぬねのだぢづでど', 'はひふへほぱぴぷぺぽ', 'まみむめも'] };
-const kbRows = () => abc() === KANA ? KB.kana : KB.us;
-const where = c => { const r = kbRows().findIndex(row => row.includes(c)); return [r, [...kbRows()[r]].indexOf(c)]; };
+// Typing guide: the entry screen's grid (GRID in mninja.js) with the next symbol lit, and moves() to reach it
 function drawKB() {
-  const rows = kbRows(), cell = c => `<span data-c="${esc(c)}">${codeHTML(c)}</span>`, gap = n => '<span></span>'.repeat(n);
+  const rows = GRID[abc() === KANA ? 'kana' : 'us'], cell = c => `<span data-c="${esc(c)}">${codeHTML(c)}</span>`, gap = n => '<span></span>'.repeat(n);
   $('kb').innerHTML = rows.slice(0, 6).map(r => [...r].map(cell).join('') + gap(10 - [...r].length)).join('')
     + [...rows[6]].map(cell).join('') + gap(6 - [...rows[6]].length)
     + `<span>←</span><span>→</span><span class="end" data-c="END">${abc() === KANA ? 'おわり' : 'END'}</span>`;
@@ -573,14 +574,8 @@ function drawKB() {
 drawKB();
 function guide() {
   const pw = shown ?? enc(state), n = pw.length, end = abc() === KANA ? 'おわり' : 'END';
-  const at = k => k < 0 ? [0, 0] : k < n ? where(pw[k]) : [6, 8];
-  const [r0, c0] = at(step - 1), [r, c] = at(step);
-  // checked in Mesen on both grids: the bottom row skips its gap (@/も → ← is one press), and the kana grid's top row
-  // has no column 9 (right from わ drops to ろ), so go across first except out of the bottom row or up to column 9
-  const h = d => d > 0 ? `→${d}` : d < 0 ? `←${-d}` : '', v = d => d > 0 ? `↓${d}` : d < 0 ? `↑${-d}` : '';
-  const parts = step === n && r0 === 6 ? [h(6 - c0)] : r0 === 6 || (r0 === 0 && c === 9) ? [v(r - r0), h(c - c0)] : [h(c - c0), v(r - r0)];
-  const moves = parts.filter(Boolean).join(' ') || 'stay put';
-  $('guide_step').textContent = step < n ? `Symbol ${step + 1} of ${n}: ${SHOW[pw[step]] ?? pw[step]} (${moves}, then B)` : `Then ${end} (${moves}, then B)`;
+  const go = moves(pw, step).map(([dir, k]) => ({ right: '→', left: '←', down: '↓', up: '↑' })[dir] + k).join(' ') || 'stay put';
+  $('guide_step').textContent = step < n ? `Symbol ${step + 1} of ${n}: ${SHOW[pw[step]] ?? pw[step]} (${go}, then B)` : `Then ${end} (${go}, then B)`;
   for (const k of $('kb').children) k.classList.toggle('at', k.dataset.c === (step < n ? pw[step] : 'END'));
   $('big_code').querySelectorAll('.gl').forEach((g, k) => { g.classList.toggle('done', k < step); g.classList.toggle('cur', k === step); });
   $('prev').disabled = step === 0;
@@ -624,7 +619,7 @@ function fixes(t, only) {
 }
 const WHY = { 'length-char': "its first symbol doesn't match its length", checksum: "the checksum doesn't match", stage: 'its zone is 10 or more', story: 'its story step is 8 or more' };
 function load(text) {
-  const t = clean(text), r = decode(t, ver), err = $('perr');
+  const t = clean(text), r = decode(t, ver), err = $('perr'), msg = [err.className, [...err.childNodes]];
   err.className = 'err';
   let other = r.error && Object.keys(VERSIONS).find(k => k !== ver && !decode(t, k).error);
   // mostly the other script (kana in US mode or the reverse): switch first, then the fixes make sense
@@ -671,7 +666,7 @@ function load(text) {
   err.textContent = `Valid: ${zone(r.state)}, ${r.state.long ? 'full logbook' : 'short code'}.`;
   const s = r.state;
   for (const i of [0, 1]) s.p[i] = { ...blank(), ...s.p[i] };
-  if ((shown ?? enc(state)) !== t) undoable('Loaded a logbook');
+  if ((shown ?? enc(state)) !== t) undoable('Loaded a logbook', msg);
   state = { ...s, long: s.long ? 1 : 0 };
   shown = enc(state) === t ? t : null;
   base = shown ?? enc(state);
@@ -716,7 +711,7 @@ const CODES = [
 ];
 const BADGE = { new: 'new">★ New', fixed: 'fixed">Fixed', known: 'known">Known' };
 function card([title, where, us, status, note, posted]) {
-  const s = decode(us).state, pw = ver === 'us' ? us : encode(s, ver), el = document.createElement('article');
+  const s = decode(us).state, pw = encode(s, ver), el = document.createElement('article');
   let [fix, about] = [note].flat();  // note: text, or [typo note, description]
   if (ver !== 'us' && status === 'fixed') posted = fix = null;  // the typo notes are about the Western symbols
   note = [fix, about].filter(Boolean).join(' ');
