@@ -23,7 +23,7 @@ The US, US Virtual Console, European and German releases all take the same logbo
 ## How to use a logbook
 
 1. On the title screen, choose **CONTINUE**, then **FROM LOGBOOK ENTRY**.
-2. Type the symbols: B types one, Y deletes. Upper and lower case are different symbols, and there's no O or I. The generator's decoder fixes common mix-ups like o/0, I/l and K/k.
+2. Type the symbols: B types one, A or Y deletes. Upper and lower case are different symbols, and there's no O or I. The generator's decoder fixes common mix-ups like o/0, I/l and K/k.
 3. Move to **END** and press B.
 
 On the Japanese release: choose **つづきをあそぶ**, then **たびにっきを つけたところから**. B types a kana, A or Y deletes, and **おわり** ends. Set the page's Game version to Japan 1.1–1.2 or Japan 1.0 first. Short codes work on every revision; if a full logbook fails, try the other Japanese setting.
@@ -140,7 +140,7 @@ Short codes are the same on every Japanese revision. The full logbooks below wer
 
 The page's Game version switch converts any other code.
 
-Checked by comparing the logbook code byte for byte and by loading the same logbooks in each release. The page's Game version switch shows and reads logbooks in kana for the Japanese releases.
+The regions were checked by comparing the logbook code byte for byte and by loading the same logbooks in each release.
 
 ## The cast
 
@@ -201,7 +201,7 @@ Item names are the ones on the in-game PROPERTY screen (Select, L or R during pl
 | `tools/disasm.py`, `tools/lin65.py` | Recursive and linear 65816 disassemblers (from the NBA Jam project) |
 | `tools/cdl2entries.py`, `tools/emu/mesen.py` | Feed Mesen 2's code/data log into the disassembler; run Mesen Lua scripts headless |
 | `tools/lz.py` | Unpacks the game's compressed graphics and tilemaps (format in `docs/secrets.md`); `python tools/lz.py` runs its self-check |
-| `tools/emu/loadcode.sh` | Load a logbook in Mesen (injected, or typed with real presses via `typeguide.mjs`) and dump a screenshot and RAM. `state.mjs` builds test logbooks; `randcodes.mjs` checks random ones against RAM |
+| `tools/emu/loadcode.sh` | Load a logbook in Mesen (injected by `mkpw.mjs`, or typed with real presses via `typeguide.mjs`) and dump a screenshot and RAM. `state.mjs` builds test logbooks; `randcodes.mjs` checks random ones against RAM |
 | `disasm/` | Listings of the US ROM (about 10% traced as code); `entries.txt` holds addresses seen running in Mesen |
 | `docs/secrets.md` | Research notes |
 | `img/logo.png`, `img/favicon.png` | The title-screen logo and Kid Ying's HUD face (tab icon) |
