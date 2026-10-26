@@ -184,7 +184,7 @@ All four ROMs are version 1.0 in the header, and the USA one matches No-Intro's 
 
 ### Japan (Ganbare Goemon: Yuki Hime Kyuushutsu Emaki)
 
-Four Japanese ROMs checked (the 1991-05-31 beta was not): 1.0 (`ADDE8D79`), Rev 1 = 1.1 (`830BC11C`),
+Four Japanese ROMs checked (the 1991-05-31 beta, which has no logbook, is covered under debug leftovers): 1.0 (`ADDE8D79`), Rev 1 = 1.1 (`830BC11C`),
 Rev 2 = 1.2 (`6CD62399`) and Rev 2 Virtual Console (`A7D7E1D5`, 9 bytes from Rev 2: header plus the
 same palette patch at `$09:8E0B` as the US VC). The three cartridge revisions differ widely (code moved).
 
@@ -236,6 +236,46 @@ loaded. The game draws the voicing marks on the 3-4 pixel rows above each 8x8 ka
   women's bath); the US version goes straight in.
 - Not checked: the strip-show room slot, the 1.0 final-boss sprites, the single maze.
 
+### The 1991-05-31 beta
+
+CRC32 `6394D9DF`, 1 MB, no internal title. Only one of its 32 banks matches Japan 1.0;
+the joypad routine and its RAM (`$20-$2E`) are the same as the release.
+
+- **No logbook.** The title menu is only ひとりであそぶ / ふたりであそぶ (1 or 2 players), with no
+  つづき (continue), and neither the kana symbol table nor the logbook key list is in the ROM. The
+  generator has nothing to support here.
+
+  ![The beta's title menu: one or two players only](img/beta_title.png)
+- **A working stage select, skipped by one jump.** Game mode 1 (`$70`, mode table `$00:A8DA`) runs
+  `$00:FB40` for two frames right after the title. Its first frame sets up a screen, and its second
+  takes `JMP $ADD0` (`$00:FB4E`) on to mode 2, over the menu code that follows. With that jump made
+  three NOPs (and `$10` fed the newly pressed buttons, `$2E`), mode 1 shows a kana menu:
+  うえ した = すてえじ (stage, `$82`, 0-10), みぎ ひだり = しいん (scene, the area `$8A`),
+  え ひい = すとうりい (story, `$8E`), わい = むてき (invincible, `$AE`, −1 to 1),
+  えっくす = しゅっ (`$1FF0` bit 0), すたあと = start, with the zone's name on top. Picking stage 2,
+  scene 2 and putting the jump back started zone 2's story scene. This is the same menu as the
+  release's uncalled `$1C:A277` (below), so its fields there are stage, scene, story and invincible.
+  A second, older copy at `$00:FE80` calls routines that have since moved and crashes if jumped to.
+
+  ![The beta's stage select, reached by removing the jump at $00:FB4E](img/beta_select.png)
+- **A mode-7 test on controller 2, switched off with an RTL.** The main loop calls `JSL $05:DEC3`
+  every frame (`$00:8580`), and `$05:DEC3` is an `RTL` right before the test. With it made a NOP,
+  controller 2's X cycles `$1C64` 0 → 1 → 2 → 0: state 1 turns the background into a mode-7 plane
+  (`$2105` = `$0F`), controller 1's d-pad scrolls it (`$17A0`, `$17B0`), X/Y rotate it (`$1F34`, 0-511),
+  and controller 2's Up/Down zoom (`$1F3A`). State 2 darkens the screen, and going back to 0 leaves
+  garbage. Not in any release.
+
+  ![Zone 1, then the mode-7 test on controller 2's X, then rotated with X](img/beta_mode7.png)
+- **The room menu is there too.** Zone 1 area 2 lists the same controller-2 Up handler as the release
+  (`$05:E3C3`; area table `$01:E5C7`), and the beta also uses that area list for zone 8.
+- **More dead debug code, gone from the releases.** A hex readout of the scroll and player position
+  (`$05:DAA7`: `$1858`, `$1859`, `$0568`, `$056C`, `$17A0`, `$17B0`), gated by the same `$EE` bit as
+  the release's debug camera (`$05:AADB`; nothing sets `$EE`), and an uncalled test-screen state
+  machine (`$05:DB60`, `$05:DE41`: Select steps `$6A` to `$10`-`$17`, L/R and A/B change `$42`
+  and `$0562`). Select in play opens the item screen (もちもの) as in the release.
+- **Other differences seen:** a kana HUD (じかん timer, 両 for ryo, おやすみ / Aぼたんで ふっかつ in
+  the empty player-2 box) and stage title scrolls (すてえじ 一 『謎の女ゆうれい』の巻).
+
 ## Debug leftovers and unused text
 
 Found by a whole-ROM scan (not just the traced 10%), with "never runs" judged from the union of every
@@ -261,10 +301,11 @@ bosses and the ending are only partly covered).
   step (`$05:E9CC`), the return from an interior (`$05:B019`) and the dead menu below.
 
   ![Zone 1 area 2, then controller 2's Up](img/test_room.png)
-- **Dead hex debug menu `$1C:A277`.** Nothing in the ROM calls it (no JSL, JML or pointer to it). It
+- **Dead stage select `$1C:A277`.** Nothing in the ROM calls it (no JSL, JML or pointer to it). It
   prints rows of hex digits and steps them with the buttons in `$10`: zone `$82` (wrapping 0-9),
-  area `$8A`, story step `$8E`, `$AE` (−1 to 1) and bit 0 of `$1FF0`. A developer's zone, area and story
-  select, cut off from the game.
+  area `$8A`, story step `$8E`, `$AE` (−1 to 1) and bit 0 of `$1FF0`. The beta still reaches its
+  own copy, which labels these stage, scene, story, invincible and しゅっ (see the beta above).
+  Japan 1.0 and 1.2 keep it too (`$1C:9885`, `$1C:986E`).
 
   ![Debug room select: the street, then Goemon's house](img/debug_warp.png)
 - **Debug camera flag `$EE`.** `$07:A751` runs every frame from the scroll code but does nothing unless

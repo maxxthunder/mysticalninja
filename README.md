@@ -83,7 +83,7 @@ Apart from the zone (below 10) and the story step (below 8), the game doesn't ra
 
 - **Button codes:** every table of button presses in the ROM is animation or input-mapping data. There's no title-screen or pause cheat code.
 - **Text:** the game's text is plain ASCII. A full dump turned up no developer messages, only the romaji room names of the debug menu below.
-- **Debug menus:** two are left in the ROM, and neither can be reached in play. A room-select menu opens with Up on controller 2, but only in an unused zone 1 test room. A zone, area and story select has no code calling it. ([details](docs/secrets.md#debug-leftovers-and-unused-text))
+- **Debug menus:** two are left in the ROM, and neither can be reached in play. A room-select menu opens with Up on controller 2, but only in an unused zone 1 test room. A stage select (stage, scene, story, invincibility) has no code calling it. The 1991 beta still has that stage select one jump away, plus a mode-7 test on controller 2. ([details](docs/secrets.md#debug-leftovers-and-unused-text))
 
 ## What the logbook holds
 
@@ -116,6 +116,7 @@ A fresh 1P game starts with 0 ryo, 0 POW, 0 bombs, 2 lives and 8 max health.
 | Super Nintendo, Germany | Same | Same routines; tables moved but identical. German menus (WEITER → VON LOGBUCHEINTRAG) |
 | Super Famicom, Japan 1.1 and 1.2 (and 1.2 Virtual Console) | Same values, kana symbols | US `B` is あ, and so on; the table is in [docs/secrets.md](docs/secrets.md#japan-ganbare-goemon-yuki-hime-kyuushutsu-emaki) |
 | Super Famicom, Japan 1.0 | Short codes the same; full logbooks differ | Different keys at 7 of the data symbols |
+| Super Famicom, Japan beta (1991-05-31) | None | No continue option or logbook screen yet ([what's in it](docs/secrets.md#the-1991-05-31-beta)) |
 
 ### Codes in kana
 

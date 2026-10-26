@@ -379,10 +379,8 @@ for (const card of form.querySelectorAll('[data-player]')) {
 
 let state = NEW_GAME(), shown = null, cells = [], step = 0;  // shown: a pasted logbook, displayed as typed until something changes
 let base = null;  // the logbook as last loaded; symbols that differ from it are marked, so only those need retyping
-// which release's symbols: us (also EU, DE, VC), jp (Japan 1.1/1.2) or jp10 (Japan 1.0, other keys)
-let ver = 'us';
-try { ver = localStorage.getItem('mninja-ver') ?? (navigator.language.startsWith('ja') ? 'jp' : 'us'); } catch {}
-if (!VERSIONS[ver]) ver = 'us';
+// which release's symbols: us (also EU, DE, VC), jp (Japan 1.1/1.2) or jp10 (Japan 1.0, other keys); jp for a Japanese browser
+let ver = navigator.language.startsWith('ja') ? 'jp' : 'us';
 const abc = () => VERSIONS[ver][0], enc = s => encode(s, ver);
 const VNAME = Object.fromEntries(OPTS.ver);
 const G = () => glitch.checked;
@@ -731,7 +729,6 @@ function showVersion() {
 }
 function setVer(v) {
   ver = v;
-  try { localStorage.setItem('mninja-ver', v); } catch {}
   shown = base = null;
   $('perr').textContent = '';
   showVersion();
