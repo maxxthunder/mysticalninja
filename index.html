@@ -94,7 +94,17 @@ input[type=range] { width: 100%; accent-color: var(--brass); }
 .item { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: center; }
 .item .ico { grid-row: span 2; }
 .item span { font-size: .78rem; color: var(--muted); letter-spacing: .04em; }
-.item input { padding: 4px 7px; }
+.item { grid-template-columns: auto 1fr auto; }
+.item span:not(.q) { grid-column: 2 / 4; }
+.item input { padding: 4px 7px; min-width: 0; }
+.item .q { display: flex; gap: 2px; }
+.item .q button { padding: 3px 6px; font: 500 .72rem var(--body); color: var(--muted); }
+/* zone thumbnails from img/zones.png (128x84 each) */
+.zt { flex: none; width: 64px; height: 42px; border-radius: 2px; image-rendering: pixelated;
+  background: url(img/zones.png) calc(var(--t) * 100% / 8) 0 / 900% 100%; }
+.char:not(:has(input:checked)) .zt { opacity: .7; }
+/* symbols that differ from the logbook as loaded */
+.code .gl.chg { box-shadow: 0 3px 0 var(--brass); }
 .toggle { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
 .toggle input { accent-color: var(--brass); width: 1.1em; height: 1.1em; }
 .hint { font-size: .85rem; color: var(--muted); margin: 0; }
@@ -348,7 +358,9 @@ for (const box of form.querySelectorAll('[data-name]')) {
   for (const [v, t, g] of OPTS[name]) {
     const l = document.createElement('label');
     l.className = (box.classList.contains('chars') ? 'char' : '') + (g ? ' glitch-opt' : '');
-    l.innerHTML = `<input type="radio" name="${name}" value="${v}"><span>${esc(t)}</span>`;
+    // zones get a thumbnail of their start (img/zones.png: zones 1-8, then the castle cell, also used for 8½)
+    const thumb = name === 'stage' ? `<i class="zt" style="--t:${Math.min(v, 8)}"></i>` : '';
+    l.innerHTML = `<input type="radio" name="${name}" value="${v}">${thumb}<span>${esc(t)}</span>`;
     box.append(l);
   }
 }
@@ -365,11 +377,12 @@ for (const card of form.querySelectorAll('[data-player]')) {
       `<label class="${w === 3 ? 'glitch-opt' : ''}"><input type="radio" name="${f('weapon')}" value="${w}">${ico('weapon' + w, 's')}<span>Lv ${w + 1}</span></label>`).join('')}</div></div>
     <div class="field"><span>Jutsu</span><div class="toggles">${FLAGS.map(([k, t, ic]) => `<label class="tog"><input type="checkbox" name="${f(k)}">${ico(ic ?? k)}<span>${t}</span></label>`).join('')}</div></div>
     <div class="field long-only"><span>Armor and food</span><div class="items">${ITEMS.map(([k, t, ic]) =>
-      `<label class="item">${ico(ic ?? k)}<span>${t}</span><input type="number" name="${f(k)}" min="0" step="1" aria-label="${t}"></label>`).join('')}</div></div>
+      `<label class="item">${ico(ic ?? k)}<span>${t}</span><input type="number" name="${f(k)}" min="0" step="1" aria-label="${t}"><span class="q"><button type="button" data-q="0" aria-label="${t}: none">0</button><button type="button" data-q="max" aria-label="${t}: most">max</button></span></label>`).join('')}</div></div>
     <div class="field long-only"><span>Key items</span><div class="toggles">${KEYS.map(([k, t, ic]) => `<label class="tog"><input type="checkbox" name="${f(k)}">${ico(ic ?? k)}<span>${t}</span></label>`).join('')}</div></div>`;
 }
 
 let state = NEW_GAME(), shown = null, cells = [], step = 0;  // shown: a pasted logbook, displayed as typed until something changes
+let base = null;  // the logbook as last loaded; symbols that differ from it are marked, so only those need retyping
 // which release's symbols: us (also EU, DE, VC), jp (Japan 1.1/1.2) or jp10 (Japan 1.0, other keys)
 let ver = 'us';
 try { ver = localStorage.getItem('mninja-ver') ?? (navigator.language.startsWith('ja') ? 'jp' : 'us'); } catch {}
@@ -441,7 +454,8 @@ function render() {
   form.elements.ver.value = ver;
   const pw = shown ?? enc(s);
   cells = layout(s);
-  $('code').innerHTML = $('big_code').innerHTML = codeHTML(pw);
+  const changed = base?.length === pw.length ? [...pw].flatMap((c, i) => c === base[i] ? [] : [i]) : [];
+  $('code').innerHTML = $('big_code').innerHTML = codeHTML(pw, Object.fromEntries(changed.map(i => [i, 'chg'])));
   step = 0;
   guide();
   const who = s.players === 3 ? '2 players' : s.players === 0 ? 'nobody (the game starts Kid Ying)' : NAMES[s.players === 2 ? 1 : 0];
@@ -449,6 +463,7 @@ function render() {
   $('summary').textContent = $('big_sum').textContent = long
     ? `${pw.length} symbols · ${zone(s)} · ${who} · ${fmtRyo(p)} · weapon Lv ${p.weapon + 1}`
     : `${pw.length} symbols · ${zone(s)} · ${who} · zone only`;
+  if (changed.length) $('summary').textContent += ` · ${changed.length} changed since loaded (underlined)`;
 }
 
 function setGlitch(on) {
@@ -500,8 +515,26 @@ form.addEventListener('input', e => {
   render();
 });
 glitch.addEventListener('change', () => setGlitch(glitch.checked));
-$('reset').onclick = () => { state = NEW_GAME(); shown = null; render(); };
-$('max').onclick = () => { state = { ...state, long: 1, story: 0, out: 0, event: 0, pad: undefined, tail: undefined, p: [maxed(), maxed()] }; shown = null; render(); };
+// Max everything, New game and loading a logbook replace your edits: offer to put them back
+let undoTimer;
+function undoable(what) {
+  const prev = [structuredClone(state), shown, base], b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'ghost';
+  b.textContent = 'Undo';
+  b.onclick = () => { [state, shown, base] = prev; $('status').textContent = ''; setGlitch(isGlitch(state) || G()); };
+  $('status').replaceChildren(`${what}. `, b);
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(() => { $('status').textContent = ''; }, 8000);
+}
+$('reset').onclick = () => { undoable('New game'); state = NEW_GAME(); shown = base = null; render(); };
+$('max').onclick = () => { undoable('Maxed everything'); state = { ...state, long: 1, story: 0, out: 0, event: 0, pad: undefined, tail: undefined, p: [maxed(), maxed()] }; shown = null; render(); };
+form.addEventListener('click', e => {  // an item's 0 / max buttons
+  const q = e.target.closest('[data-q]'), input = q?.closest('.item').querySelector('input');
+  if (!q) return;
+  input.value = q.dataset.q === 'max' ? input.max : 0;
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+});
 
 // Field map: point at a symbol to see what it stores, or at a control to see its symbols
 const FIELD = { length: 'length', key: 'key', checksum: 'checksum', unused: 'unused', stage: 'zone', out: 'players out', story: 'story step',
@@ -638,8 +671,10 @@ function load(text) {
   err.textContent = `Valid: ${zone(r.state)}, ${r.state.long ? 'full logbook' : 'short code'}.`;
   const s = r.state;
   for (const i of [0, 1]) s.p[i] = { ...blank(), ...s.p[i] };
+  if ((shown ?? enc(state)) !== t) undoable('Loaded a logbook');
   state = { ...s, long: s.long ? 1 : 0 };
   shown = enc(state) === t ? t : null;
+  base = shown ?? enc(state);
   setGlitch(isGlitch(state) || G());
 }
 $('load').onclick = () => load($('paste').value);
@@ -714,7 +749,7 @@ function showVersion() {
 function setVer(v) {
   ver = v;
   try { localStorage.setItem('mninja-ver', v); } catch {}
-  shown = null;
+  shown = base = null;
   $('perr').textContent = '';
   showVersion();
   render();

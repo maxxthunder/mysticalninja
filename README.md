@@ -205,6 +205,7 @@ Item names are the ones on the in-game PROPERTY screen (Select, L or R during pl
 | `img/logo.png`, `img/favicon.png` | The title-screen logo and Kid Ying's HUD face (tab icon) |
 | `img/font.png` | The 64 logbook symbols from the entry screen, in value order |
 | `img/font_jp.png` | The 64 kana from the Japanese entry screen, in value order, 8×12 so the voicing marks fit |
+| `img/zones.png` | Zone thumbnails for the zone picker, cut from `img/readme/zones.png` |
 | `img/items/` | Item, jutsu, weapon, face, health-bar and POW icons ripped from the PROPERTY screen, pause screen and HUD |
 | `img/readme/` | Images for this README |
 

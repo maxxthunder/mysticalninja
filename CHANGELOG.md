@@ -9,6 +9,8 @@ Changes to the [password generator](https://maxxthunder.github.io/mysticalninja/
 - Passwords drawn in the game's own logbook font, ripped from the entry screen; short codes stay in one piece.
 - Big text view with a typing guide: the entry screen's grid with the next symbol lit and the moves to reach it.
 - Point at a symbol to see which fields it holds, or at a control to see its symbols.
+- Zone picker with a thumbnail of each starting point; 0 and max buttons on every armor and food item.
+- Undo after Max everything, New game or loading a logbook; after editing a loaded logbook, the symbols that changed are underlined so only those need retyping.
 - A live copy of the in-game HUD on each player card: health bar, spare-life heads, POW and ryo.
 - Copy button; a pasted or typed logbook decodes as soon as it's complete, with one-symbol fixes for mistyped ones and the suspect symbol marked on the code.
 - 18 logbook codes: the GameFAQs list checked, six of its typos fixed, and seven new codes. Every one was loaded in Mesen 2.
