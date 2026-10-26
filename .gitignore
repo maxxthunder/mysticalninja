@@ -1,0 +1,9 @@
+# ROMs and other copyrighted material stay local
+roms/
+*.sfc
+*.smc
+res/
+disasm/*.asm
+
+__pycache__/
+node_modules/

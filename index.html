@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<title>Legend of the Mystical Ninja Password Generator: Super Nintendo (SNES) logbook</title>
+<meta name="description" content="Make or decode logbook passwords for The Legend of the Mystical Ninja on Super Nintendo: any zone, ryo, lives, health, POW, bombs, weapon, jutsu, armor, food and key items, for one or two players.">
+<link rel="canonical" href="https://maxxthunder.github.io/mysticalninja/">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "WebApplication", "name": "Legend of the Mystical Ninja Password Generator",
+ "url": "https://maxxthunder.github.io/mysticalninja/", "description": "Make or decode logbook passwords for The Legend of the Mystical Ninja on Super Nintendo.", "applicationCategory": "GameApplication", "operatingSystem": "Any (web browser)",
+ "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+ "about": {"@type": "VideoGame", "name": "The Legend of the Mystical Ninja", "gamePlatform": ["Super Nintendo Entertainment System"],
+   "author": {"@type": "Organization", "name": "Konami"}}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Space+Mono:wght@700&display=swap">
+<style>
+/* Layout: one column; the logbook scroll is up top, then the logbook and player cards (they stack on a phone) */
+:root {
+  /* "Edo night": indigo-black with vermilion controls; the password sits on the cream paper of the game's logbook scroll */
+  --bg: #11131f; --panel: #1b1e30; --ink: #efe6d6; --muted: #9c9ab0; --line: #2f3352;
+  --brass: #e8553f; --brass-soft: #3b1f24; --plate: #f2e4c9; --plate-ink: #3b2a1c; --scroll: #e8685f; --bad: #ff8a72; --gold: #f4c54a;
+  --sky: #3984ff;  /* the title screen's sky, behind the logo */
+  --display: "Shippori Mincho B1", Georgia, serif; --body: "Zen Kaku Gothic New", system-ui, sans-serif;
+  --mono: "Space Mono", ui-monospace, Consolas, monospace; color-scheme: dark;
+}
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--body); margin: 0; }
+.wrap { max-width: 900px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 24px; display: grid; gap: 24px; }
+header { text-align: center; }
+.banner { background: var(--sky); border-radius: 6px; padding: 18px 16px 14px; }
+h1 { font: 800 clamp(1.5rem, 4.6vw, 2.2rem)/1.15 var(--display); margin: 0; letter-spacing: .02em; text-wrap: balance; color: #fff;
+  text-shadow: 0 2px 0 #1b3f86; }
+h1 .logo { display: block; width: min(100%, 600px); height: auto; margin: 0 auto 8px; image-rendering: pixelated; }
+.sub { color: var(--muted); margin: 10px auto 0; max-width: 62ch; }
+/* the password plate: cream logbook paper with the scroll's red rails top and bottom */
+.plate { background: var(--plate); color: var(--plate-ink); border-radius: 6px; padding: 20px; display: grid; gap: 14px;
+  border-block: 8px solid var(--scroll); container-type: inline-size; }
+.plate-label { font: 500 .75rem var(--body); letter-spacing: .14em; text-transform: uppercase; opacity: .75; }
+/* rows of three 5-symbol groups, like the logbook screen; the font follows the plate's width */
+.code { display: grid; gap: .5em; font: 700 min(5.6cqi, 2.4rem)/1 var(--mono); font-size: round(down, min(5.6cqi, 40px), 8px); }
+.code .line { display: flex; gap: 1em; }
+.code .grp { display: flex; white-space: pre; }
+/* each symbol is its tile from the entry screen (img/font.png, 64 tiles in value order); the text stays for copying */
+.gl { display: inline-block; width: 1em; height: 1em; overflow: hidden; color: transparent; image-rendering: pixelated;
+  background: url(img/font.png) calc(var(--i) * 100% / 63) 0 / 6400% 100% no-repeat; }
+.gl.k { height: 1.5em; background-image: url(img/font_jp.png); }  /* kana, 8x12: the voicing marks sit above the cell */
+.summary { font-size: .95rem; opacity: .9; }
+.plate-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: 500 .95rem var(--body); border-radius: 4px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+button:hover { border-color: var(--brass); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.plate button { background: var(--brass); color: #fff; border-color: transparent; font-weight: 700; }
+.plate .ghost, #big .ghost { background: transparent; color: var(--plate-ink); border-color: color-mix(in srgb, var(--plate-ink) 35%, transparent); font-weight: 500; }
+#copy { min-width: 6.5em; }
+.status { font-size: .9rem; opacity: .85; }
+section { display: grid; gap: 12px; }
+h2 { font: 800 1.15rem var(--display); margin: 0; letter-spacing: .03em; display: flex; align-items: center; gap: 10px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg label { padding: 6px 12px; cursor: pointer; background: var(--panel); border-left: 1px solid var(--line); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 420px) { .seg label { padding: 6px 8px; font-size: min(1rem, 4.3vw); } }
+.seg label:first-child { border-left: 0; }
+.field .seg { display: flex; gap: 1px; }
+.field .seg label { flex: 1 1 0; min-width: max-content; border-left: 0; outline: 1px solid var(--line); justify-content: center; }
+.seg input, .char input, .tog input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + span, .seg input:checked + img + span { color: var(--brass); font-weight: 700; }
+.seg label:has(input:checked) { background: var(--brass-soft); }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--brass); outline-offset: -2px; }
+.glitch-opt > span::after, .glitch-mark::after { content: " ⚠"; color: var(--gold); }
+/* sprites are ripped from the game (PROPERTY screen, pause screen, HUD) at 16px, shown at 2× */
+.ico { width: 32px; height: 32px; image-rendering: pixelated; flex: none; }
+.ico.s { width: 24px; height: 24px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px; display: grid; gap: 14px; min-width: 0; align-content: start; }
+.field { display: grid; gap: 4px; }
+.field > span, .field > label { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.field output { font: 700 .9rem var(--mono); color: var(--ink); letter-spacing: 0; text-transform: none; }
+.lbl { display: inline-flex; align-items: center; gap: 8px; }
+input[type=number], input[type=text] { font: 1rem var(--body); padding: 7px 9px; border-radius: 4px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; box-sizing: border-box; }
+input[type=range] { width: 100%; accent-color: var(--brass); }
+.digits { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.chars { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.char, .tog { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); cursor: pointer; font-size: .9rem; }
+.char:has(input:checked), .tog:has(input:checked) { border-color: var(--brass); background: var(--brass-soft); color: var(--brass); font-weight: 700; }
+.tog:not(:has(input:checked)) .ico { opacity: .45; filter: grayscale(.6); }
+.char:has(input:focus-visible), .tog:has(input:focus-visible) { outline: 2px solid var(--brass); outline-offset: 2px; }
+.char small { display: block; font-weight: 400; color: var(--muted); font-size: .78rem; }
+.toggles { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 6px; }
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 12px; }
+.item { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: center; }
+.item .ico { grid-row: span 2; }
+.item span { font-size: .78rem; color: var(--muted); letter-spacing: .04em; }
+.item input { padding: 4px 7px; }
+.toggle { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
+.toggle input { accent-color: var(--brass); width: 1.1em; height: 1.1em; }
+.hint { font-size: .85rem; color: var(--muted); margin: 0; }
+.err { color: var(--bad); font-size: .9rem; margin: 0; }
+.ok { color: var(--gold); font-size: .9rem; margin: 0; }
+#perr:empty, #stage_note:empty { display: none; }
+.decode { display: grid; gap: 8px; }
+.decode .err button { margin: 4px 6px 0 0; font: 700 .85rem var(--mono); letter-spacing: .06em; text-transform: none; }
+.mono { font-family: var(--mono); letter-spacing: .06em; }
+details { color: var(--muted); font-size: .92rem; }
+summary { cursor: pointer; color: var(--ink); }
+table { border-collapse: collapse; font-size: .88rem; }
+td, th { border-bottom: 1px solid var(--line); padding: 4px 10px 4px 0; text-align: left; vertical-align: top; }
+.tw { overflow-x: auto; }
+/* codes: one card per password */
+.codes h2 { font-size: 1.5rem; }
+.code-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 12px; }
+.code-card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; position: relative; }
+.code-card h3 { font: 700 1.05rem var(--body); margin: 0; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.code-card .where { color: var(--muted); font-size: .9rem; margin: 0; }
+.code-card .note { color: var(--muted); font-size: .85rem; margin: 0; }
+.badge { font: 700 .7rem var(--body); letter-spacing: .1em; text-transform: uppercase; border-radius: 3px; padding: 2px 7px; white-space: nowrap; }
+.badge.new { background: var(--brass); color: #fff; position: absolute; top: 0; right: 16px; border-radius: 0 0 4px 4px; padding: 3px 9px; }
+.code-card:has(.badge.new) { padding-top: 20px; }
+.code-card:has(.badge.new) h3 { padding-right: 76px; }
+.badge.known { border: 1px solid var(--line); color: var(--muted); }
+.badge.fixed { border: 1px solid var(--gold); color: var(--gold); }
+.code-card button.pw { justify-self: start; background: var(--plate); border-color: transparent; padding: 10px 12px; }
+.code-card .code { font-size: 16px; }
+/* each card's left edge takes its starting zone's colour */
+.code-card { border-left: 4px solid hsl(calc(var(--z) * 36) 65% 58%); }
+.code-card .where { display: flex; align-items: center; gap: 4px; }
+.code-card .where .ico { width: 24px; height: 24px; }
+.code-card .where .ico:last-of-type { margin-right: 4px; }
+.code-card s { color: var(--muted); font-family: var(--mono); font-size: .85rem; word-break: break-all; }
+footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: .9rem; color: var(--muted); flex-wrap: wrap; }
+footer a { color: var(--brass); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+/* big-text view for reading the password while typing it into the game */
+#big { inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; border: 0; padding: 24px 16px; box-sizing: border-box;
+  background: var(--plate); color: var(--plate-ink); }
+#big[open] { display: grid; place-content: center; justify-items: center; gap: 18px; overflow-y: auto; text-align: center; container-type: inline-size; }
+#big .summary { font-size: 1.1rem; text-wrap: balance; }
+body:has(#big[open]) { overflow: hidden; }
+.big-code { font-size: min(6.4cqi, 6vh) !important; font-size: round(down, min(6.4cqi, 6vh), 8px) !important; justify-items: center; }
+.big-code .line { flex-wrap: wrap; justify-content: center; row-gap: .5em; }
+@media (max-width: 600px) { .big-code { font-size: round(down, min(8cqi, 6vh), 8px) !important; } }  /* two groups a line on a phone */
+/* typing guide: the entry screen's grid, white tiles on blue */
+.guide { display: grid; gap: 10px; justify-items: center; }
+.kb { display: grid; grid-template-columns: repeat(10, minmax(22px, 2em)); gap: 6px 4px; background: #42529a; padding: 10px 12px; border-radius: 6px; font-size: 16px; }
+.kb > span { display: grid; place-items: center; height: 2em; border: 2px solid transparent; border-radius: 3px; color: #fff; font: 700 .8rem var(--mono); }
+.kb .gl, .hud .gl { filter: brightness(0) invert(1); }
+.kb > span.at { border-color: var(--gold); }
+.kb .end { grid-column: span 2; }
+.kb .line { font-size: 16px; }
+#guide_step { margin: 0; font-size: 1rem; text-align: center; text-wrap: balance; }
+.big-code .gl.done { opacity: .3; }
+.gl.cur { outline: 3px solid var(--brass); outline-offset: 2px; }
+/* field map: symbols holding the field under the pointer or focus */
+.code .gl.hl { background-color: color-mix(in srgb, var(--gold) 55%, transparent); }
+#symbol_info { font-size: .85rem; min-height: 1.3em; }
+/* a failed paste, drawn with the suspect symbols marked; fixes show the changed symbol */
+.mini { display: inline-grid; font-size: 16px; background: var(--plate); padding: 8px 10px; border-radius: 4px; margin-top: 8px; }
+.gl.raw { background: none; color: var(--bad); font: 700 1em/1 var(--mono); text-align: center; }
+.gl.bad { background-color: #ff8a72; }
+.gl.fix { background-color: #8fd48f; }
+.decode .err button.fixbtn { background: var(--plate); padding: 6px 8px; }
+/* the in-game HUD for this player: face, health bar (one segment per max health, red = health; checked in Mesen up to 31), spare-life heads, POW, ryo */
+.hud { display: flex; align-items: center; gap: 10px; background: #3a3f63; border: 2px solid #9c9ab0; border-radius: 4px; padding: 8px 10px; flex-wrap: wrap; }
+.hud .bar { display: flex; gap: 2px; background: #fff; padding: 2px; width: max-content; }
+.hud .bar i { width: 4px; height: 12px; background: #ffb500; }
+.hud .bar i.on { background: #f70000; }
+.hud .heads { display: flex; min-height: 20px; }
+.hud .heads img { width: 20px; height: 20px; image-rendering: pixelated; }
+.hud .num { display: flex; align-items: center; gap: 4px; }
+.hud .code { font-size: 16px; }
+#big_close { background: var(--brass); color: #fff; border-color: transparent; font-weight: 700; font-size: 1.1rem; padding: 10px 28px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="banner">
+      <h1><img class="logo" src="img/logo.png" width="200" height="59" alt="The Legend of the Mystical Ninja">Password Generator</h1>
+    </div>
+    <p class="sub">Build a logbook for any zone, with any money, weapon, jutsu, armor and food, for one or two players. Or paste one to see what it holds and fix typos.</p>
+  </header>
+
+  <div class="plate">
+    <div class="plate-label">Logbook entry</div>
+    <div class="code" id="code"></div>
+    <div id="symbol_info" aria-live="polite"></div>
+    <div class="summary" id="summary"></div>
+    <div class="plate-row">
+      <button id="big_open" type="button">Big text and typing guide</button>
+      <button id="copy" class="ghost" type="button">Copy</button>
+      <button id="max" class="ghost" type="button">Max everything</button>
+      <button id="reset" class="ghost" type="button">New game</button>
+      <span class="status" id="status" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <div class="decode">
+    <div class="row">
+      <input type="text" id="paste" class="mono" maxlength="90" placeholder="6, 7, 31 or 55 symbols" autocomplete="off" spellcheck="false" autocapitalize="off" style="max-width:34ch" aria-label="Logbook to decode">
+      <button id="load" type="button">Decode</button>
+      <span class="hint" id="paste_hint"></span>
+    </div>
+    <div class="err" id="perr" aria-live="polite"></div>
+  </div>
+
+  <dialog id="big" aria-label="Password in large text">
+    <p class="summary" id="big_sum"></p>
+    <div class="code big-code" id="big_code"></div>
+    <div class="guide">
+      <div class="kb" id="kb" aria-hidden="true"></div>
+      <p id="guide_step" aria-live="polite"></p>
+      <p class="hint" id="kb_hint" style="color:inherit;opacity:.75"></p>
+      <div class="plate-row"><button id="prev" class="ghost" type="button">Back</button><button id="next" class="ghost" type="button">Next symbol</button></div>
+    </div>
+    <button id="big_close" type="button" autofocus>Done</button>
+  </dialog>
+
+  <section>
+    <div class="row">
+      <label class="toggle"><input type="checkbox" id="glitch"> Glitch mode</label>
+      <span class="hint">Unlocks values past the game's own limits (marked ⚠): weapon level 4, health up to 31, POW 19, 39 bombs, 10–15 lives, 100–255 of an item, and the missing zone 8.</span>
+    </div>
+  </section>
+
+  <form class="cards" id="f" onsubmit="return false">
+    <div class="card">
+      <h2>Logbook</h2>
+      <div class="field"><span>Game version</span><div class="seg" data-name="ver"></div></div>
+      <div class="field"><span>Kind</span><div class="seg" data-name="long"></div></div>
+      <div class="field"><span>Players</span><div class="seg" data-name="players"></div></div>
+      <div class="field"><span>Zone</span><div class="chars" data-name="stage"></div><p class="hint" id="stage_note"></p></div>
+      <div class="field"><label for="key">Version <output id="key_out"></output></label><input type="range" id="key" name="key" min="1" max="63">
+        <p class="hint">The game picks one of 63 versions at random each time it writes a logbook. They all load the same.</p></div>
+      <details class="long-only">
+        <summary>Story flags</summary>
+        <div class="field"><label for="story">Story step <output id="story_out"></output></label><input type="range" id="story" name="story" min="0" max="7">
+          <p class="hint">Where the plot is inside the zone. It doesn't change where a logbook starts; in zone 9, 6 and 7 crash the game.</p></div>
+        <div class="field"><label for="event">Area event value <output id="event_out"></output></label><input type="range" id="event" name="event" min="0" max="15">
+          <p class="hint">Saved, but the game clears it on most zone loads.</p></div>
+        <div class="field"><span>Game over (waiting to continue)</span><div class="toggles">
+          <label class="tog"><input type="checkbox" name="out" value="1"><span>Kid Ying</span></label>
+          <label class="tog"><input type="checkbox" name="out" value="2"><span>Dr. Yang</span></label></div></div>
+      </details>
+    </div>
+    <div class="card" data-player="0"></div>
+    <div class="card" data-player="1"></div>
+  </form>
+
+  <section class="codes" aria-labelledby="codes_h">
+    <h2 id="codes_h">Logbook codes</h2>
+    <p class="hint" id="codes_sum"></p>
+    <div class="code-list" id="codes"></div>
+    <p class="hint">Every code here was loaded in an emulator (Mesen 2). Click a code to load it into the generator.</p>
+  </section>
+
+  <details>
+    <summary>About this generator</summary>
+    <p>Logbook passwords for <i>The Legend of the Mystical Ninja</i> (Konami, 1992; <i>Ganbare Goemon: Yukihime Kyūshutsu Emaki</i> in Japan).
+      The algorithm was taken from the game's own code. A full logbook (31 symbols, 55 for two players) holds everything below; a short one
+      (6 or 7 symbols) holds the zone and the four jutsu, but the game clears the jutsu as the zone starts, so only the zone counts.</p>
+    <p>The US, European and German releases (and the US Virtual Console version) use the same code, so a logbook works in all of them. German menus say WEITER, then VON LOGBUCHEINTRAG. The Japanese release writes the same logbooks in kana: pick Japan 1.1–1.2 or Japan 1.0 under Game version (1.0 scrambles some symbols differently). In Japanese, the entry screen is つづきをあそぶ, then たびにっきを つけたところから.</p>
+    <p>To use one: on the title screen choose CONTINUE, then FROM LOGBOOK ENTRY. B types a symbol, Y deletes. Move to END and press B.</p>
+    <p>If a logbook won't work:</p>
+    <ul>
+      <li>Upper and lower case are different symbols: <span class="mono">K</span> and <span class="mono">k</span>, <span class="mono">W</span> and <span class="mono">w</span> are not the same.</li>
+      <li>There's no O and no I. An o is almost always the zero; an I is usually a lower-case l. The decoder suggests one-symbol fixes.</li>
+      <li>△ and ♡ are easy to swap when copying from text that has neither.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>What the fields do</summary>
+    <div class="tw"><table>
+      <tr><th>Field</th><th>Notes</th></tr>
+      <tr><td>Ryo</td><td>Up to 99,999. Stored as decimal digits.</td></tr>
+      <tr><td>Lives</td><td>The HUD draws at most 4 heads. At 0 the next death is game over.</td></tr>
+      <tr><td>Health, max health</td><td>In half hearts. Max health is 8 at the start, +2 per tour package to 16, and goes back to 8 at every new zone.</td></tr>
+      <tr><td>POW</td><td>Jutsu uses; each jutsu costs 1. The game caps it at 10.</td></tr>
+      <tr><td>POW pieces</td><td>Every 10 pickups turns into 1 POW.</td></tr>
+      <tr><td>Bombs</td><td>The game caps them at 30.</td></tr>
+      <tr><td>Weapon</td><td>Drops a level every time you're hit. Level 4 (glitch) throws coins that cost ryo.</td></tr>
+      <tr><td>Helmets, armor</td><td>Durability, not a count: armor soaks the damage of each hit. The PROPERTY screen shows durability ÷ 8 (gold), 6 (iron, chain) or 4 (straw), rounded up.</td></tr>
+      <tr><td>Straw sandals</td><td>Speed. More than 3 doesn't make you faster. You lose one when hit.</td></tr>
+      <tr><td>Pizza, slice, hamburger</td><td>Eaten automatically when your health hits 0, instead of losing a life: whole pizza first (full heal), then a slice (+6), then a hamburger (+4).</td></tr>
+      <tr><td>Jutsu, pass, text, elephants</td><td>Cleared at every new zone. The pass lets you through the checkpoints; the text is a story item. Elephants 1–3 are checkpoints in zones 4–9: lose a life in the action stage and you can restart at any you hold, so setting them here gives you every checkpoint.</td></tr>
+    </table></div>
+  </details>
+
+  <details>
+    <summary>How the password is built</summary>
+    <p>Each symbol is a 6-bit number; the 64 symbols in order are <span class="mono" id="alpha"></span>. The first symbol holds the data length and the
+      second a random key. Then come the data symbols and two checksum symbols, each one XORed with a fixed table and shifted by the key. The checksum
+      is the sum of every field, masked to two 6-bit values. Fields are packed lowest bit first, six bits to a symbol, and each block (the shared fields,
+      then each player) starts on a new symbol. The game only accepts 6, 7, 31 or 55 symbols, a zone below 10 and a story step below 8; nothing else is
+      range-checked. Code: decode $1C:AFC7, encode $1C:ACE5, tables at $02:FD3E.</p>
+  </details>
+
+  <footer><a href="https://github.com/maxxthunder/mysticalninja"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>maxxthunder/mysticalninja</a><a href="https://github.com/maxxthunder/mysticalninja/blob/main/CHANGELOG.md">v1.0.0</a></footer>
+</div>
+
+<script type="module">
+import { ALPHABET, KANA, VERSIONS, SHOW, encode, decode, clean, layout, fromBCD, toBCD, ryo } from './mninja.js';
+
+const ZONES = [['Zone 1', 'Edo'], ['Zone 2', 'Shikoku'], ['Zone 3', 'Awa'], ['Zone 4', 'Harima'], ['Zone 5', 'Iga'], ['Zone 6', ''],
+  ['Zone 7', 'Izumo'], ['Zone 8', 'Ryukyu'], ['Zone 8½', 'no start point'], ['Zone 9', 'the castle']];
+const NAMES = ['Kid Ying', 'Dr. Yang'];
+// radio groups: name -> [[value, label], ...]; values marked true are glitch-only
+const OPTS = {
+  ver: [['us', 'US / Europe'], ['jp', 'Japan 1.1–1.2'], ['jp10', 'Japan 1.0']],
+  long: [[1, 'Full logbook'], [0, 'Short (zone only)']],
+  // the game writes P2-only logbooks after Kid Ying's game over; it accepts 0 players and starts Kid Ying anyway
+  players: [[1, '1 player'], [3, '2 players'], [2, 'Dr. Yang only'], [0, 'Nobody', true]],
+  stage: ZONES.map(([z, n], i) => [i, z + (n ? ` · ${n}` : ''), i === 8]),
+};
+// player fields: [name, label, icon, normal max, glitch max, kind]
+const NUMS = [
+  ['lives', 'Lives', 'ying', 9, 15],
+  ['maxHealth', 'Max health', 'health', 16, 31],
+  ['health', 'Health', 'health', 16, 31],
+  ['pow', 'POW (jutsu uses)', 'jutsu1', 10, 19, 'bcd'],
+  ['pieces', 'POW pieces', 'pow', 9, 9, 'bcd'],
+  ['bombs', 'Bombs', 'bomb', 30, 39, 'bcd'],
+];
+const ITEMS = [['goldHelmet', 'Gold helmet', 'gold_helmet'], ['ironHelmet', 'Iron helmet', 'iron_helmet'], ['strawHat', 'Straw hat', 'straw_hat'],
+  ['goldArmor', 'Gold armor', 'gold_armor'], ['chainArmor', 'Chain armor', 'chain_armor'], ['strawCoat', 'Straw coat', 'straw_coat'],
+  ['sandals', 'Straw sandals'], ['pizza', 'Pizza'], ['slice', 'Pizza slice', 'pizza_slice'], ['hamburger', 'Hamburger']];
+const FLAGS = [['jutsu1', 'Jutsu 1'], ['jutsu2', 'Jutsu 2'], ['jutsu3', 'Jutsu 3'], ['jutsu4', 'Jutsu 4']];
+const KEYS = [['pass', 'Pass'], ['text', 'Text'], ['elephant1', 'Elephant 1', 'elephant'], ['elephant2', 'Elephant 2', 'elephant'],
+  ['elephant3', 'Elephant 3', 'elephant'], ['elephant4', 'Elephant 4', 'elephant']];
+
+const blank = () => ({ ryo: 0, ryo5: 0, lives: 2, health: 8, pieces: 0, bombs: 0, maxHealth: 8, pow: 0, weapon: 0,
+  ...Object.fromEntries([...ITEMS, ...FLAGS, ...KEYS].map(([k]) => [k, 0])) });
+const NEW_GAME = () => ({ long: 1, key: 1, stage: 0, players: 1, out: 0, story: 0, event: 0, p: [blank(), blank()] });  // a fresh game's RAM after the intro
+const maxed = () => ({ ...blank(), ryo: 0x9999, ryo5: 9, lives: 9, health: 16, maxHealth: 16, pow: 0x10, pieces: 9, bombs: 0x30, weapon: 2,
+  ...Object.fromEntries(ITEMS.map(([k]) => [k, k === 'sandals' ? 3 : 99])), ...Object.fromEntries([...FLAGS, ...KEYS].map(([k]) => [k, 1])) });
+
+const $ = id => document.getElementById(id);
+const form = $('f'), glitch = $('glitch');
+const ico = (n, cls = '') => n ? `<img class="ico ${cls}" src="img/items/${n}.png" width="16" height="16" alt="">` : '';
+const esc = t => String(t).replace(/[&<>"]/g, c => `&#${c.charCodeAt(0)};`);
+
+for (const box of form.querySelectorAll('[data-name]')) {
+  const name = box.dataset.name;
+  box.setAttribute('role', 'radiogroup');
+  box.setAttribute('aria-label', box.closest('.field').firstElementChild.textContent);
+  for (const [v, t, g] of OPTS[name]) {
+    const l = document.createElement('label');
+    l.className = (box.classList.contains('chars') ? 'char' : '') + (g ? ' glitch-opt' : '');
+    l.innerHTML = `<input type="radio" name="${name}" value="${v}"><span>${esc(t)}</span>`;
+    box.append(l);
+  }
+}
+for (const card of form.querySelectorAll('[data-player]')) {
+  const i = card.dataset.player, f = n => `p${i}.${n}`;
+  card.innerHTML = `<h2>${ico(i === '0' ? 'ying' : 'yang')}${NAMES[i]}</h2>
+    <div class="hud long-only" aria-hidden="true"></div>
+    <div class="field long-only"><label for="${f('money')}">Ryo <output id="${f('ryo_out')}"></output></label>
+      <input type="number" id="${f('money')}" name="${f('money')}" min="0" max="99999" step="1" class="plain">
+      <div class="digits" hidden>${[4, 3, 2, 1, 0].map(d => `<input type="number" name="${f('d' + d)}" min="0" max="15" aria-label="Ryo digit ${d + 1}">`).join('')}</div></div>
+    ${NUMS.map(([k, t, ic]) => `<div class="field long-only"><label for="${f(k)}"><span class="lbl">${ico(ic === 'ying' && i === '1' ? 'yang' : ic, 's')}${t}</span><output id="${f(k + '_out')}"></output></label>
+      <input type="range" id="${f(k)}" name="${f(k)}" min="0"></div>`).join('')}
+    <div class="field long-only"><span>Weapon</span><div class="seg">${[0, 1, 2, 3].map(w =>
+      `<label class="${w === 3 ? 'glitch-opt' : ''}"><input type="radio" name="${f('weapon')}" value="${w}">${ico('weapon' + w, 's')}<span>Lv ${w + 1}</span></label>`).join('')}</div></div>
+    <div class="field"><span>Jutsu</span><div class="toggles">${FLAGS.map(([k, t, ic]) => `<label class="tog"><input type="checkbox" name="${f(k)}">${ico(ic ?? k)}<span>${t}</span></label>`).join('')}</div></div>
+    <div class="field long-only"><span>Armor and food</span><div class="items">${ITEMS.map(([k, t, ic]) =>
+      `<label class="item">${ico(ic ?? k)}<span>${t}</span><input type="number" name="${f(k)}" min="0" step="1" aria-label="${t}"></label>`).join('')}</div></div>
+    <div class="field long-only"><span>Key items</span><div class="toggles">${KEYS.map(([k, t, ic]) => `<label class="tog"><input type="checkbox" name="${f(k)}">${ico(ic ?? k)}<span>${t}</span></label>`).join('')}</div></div>`;
+}
+
+let state = NEW_GAME(), shown = null, cells = [], step = 0;  // shown: a pasted logbook, displayed as typed until something changes
+// which release's symbols: us (also EU, DE, VC), jp (Japan 1.1/1.2) or jp10 (Japan 1.0, other keys)
+let ver = 'us';
+try { ver = localStorage.getItem('mninja-ver') ?? 'us'; } catch {}
+if (!VERSIONS[ver]) ver = 'us';
+const abc = () => VERSIONS[ver][0], enc = s => encode(s, ver);
+const VNAME = Object.fromEntries(OPTS.ver);
+const G = () => glitch.checked;
+// where the game actually starts: full logbooks for zone 1 and the missing zone 8 get moved (checked in Mesen)
+const start = s => s.long && s.stage === 0 ? 1 : s.long && s.stage === 8 ? 9 : s.stage;
+const zone = s => { const z = start(s);
+  return ZONES[z] ? ZONES[z].filter(Boolean).join(' · ') : `zone value ${s.stage}`; };
+const fmtRyo = p => { const r = ryo(p); return r === null ? 'junk digits' : r.toLocaleString('en-US') + ' ryo'; };
+const glyphs = pw => [...pw].map(c => SHOW[c] ?? c).join('');
+// groups of five, like the logbook screen; a short code stays in one piece
+const groups = pw => pw.length <= 7 ? [pw] : pw.match(/.{1,5}/gu) ?? [];
+const spaced = pw => groups(glyphs(pw)).join(' ');
+// mark: { symbol index: class }; a symbol the game doesn't have is drawn as plain text
+function codeHTML(pw, mark = {}, set = abc()) {
+  let n = 0;
+  const gl = c => { const i = n++, v = set.indexOf(c);
+    return `<span class="gl${v < 0 ? ' raw' : set === KANA ? ' k' : ''} ${mark[i] ?? ''}" data-i="${i}" style="--i:${v}">${esc(SHOW[c] ?? c)}</span>`; };
+  const g = groups(pw).map(x => `<span class="grp">${[...x].map(gl).join('')}</span>`), lines = [];
+  for (let i = 0; i < g.length; i += 3) lines.push(`<span class="line">${g.slice(i, i + 3).join(' ')}</span>`);
+  return lines.join('');
+}
+
+function render() {
+  const s = state, long = !!s.long;
+  form.elements.long.value = String(s.long);
+  form.elements.players.value = String(s.players);
+  form.elements.stage.value = String(s.stage);
+  form.elements.key.min = Math.min(1, s.key);  // the game never writes key 0, but it accepts one
+  for (const k of ['key', 'story', 'event']) { form.elements[k].value = s[k]; $(k + '_out').textContent = s[k]; }
+  for (const c of form.elements.out) c.checked = !!(s.out & +c.value);
+  form.querySelectorAll('.long-only').forEach(e => { e.hidden = !long; });
+  for (const i of [0, 1]) {
+    const p = s.p[i], card = form.querySelector(`[data-player="${i}"]`), f = n => form.elements[`p${i}.${n}`];
+    card.hidden = !(s.players & (1 << i));
+    const r = ryo(p);
+    card.querySelector('.plain').hidden = G();
+    card.querySelector('.digits').hidden = !G();
+    f('money').value = r ?? '';
+    [p.ryo & 15, p.ryo >> 4 & 15, p.ryo >> 8 & 15, p.ryo >> 12 & 15, p.ryo5].forEach((d, n) => { f('d' + n).value = d; });
+    $(`p${i}.ryo_out`).textContent = fmtRyo(p);
+    for (const [k, , , max, gmax, kind] of NUMS) {
+      const el = f(k), v = kind === 'bcd' ? fromBCD(p[k]) : p[k], top = G() ? gmax : k === 'health' ? p.maxHealth : max;
+      el.max = Math.max(top, v ?? 0);
+      el.value = v ?? 0;
+      $(`p${i}.${k}_out`).textContent = v === null ? `junk ($${p[k].toString(16)})` : v;
+      $(`p${i}.${k}_out`).classList.toggle('glitch-mark', v === null || v > max);
+    }
+    f('weapon').value = String(p.weapon);
+    const hex = (v, w) => v.toString(16).padStart(w, '0');
+    card.querySelector('.hud').innerHTML = `${ico(i ? 'yang' : 'ying')}<div><span class="bar">${
+      Array.from({ length: p.maxHealth }, (_, k) => `<i${k < p.health ? ' class="on"' : ''}></i>`).join('')}</span>
+      <div class="heads">${`<img src="img/items/life_${i ? 'yang' : 'ying'}.png" alt="">`.repeat(Math.min(p.lives, 4))}</div></div>
+      <span class="num">${ico('pow', 's')}<span class="code">${codeHTML(hex(p.pow, 2), {}, ALPHABET)}</span></span>
+      <span class="num"><span class="code">${codeHTML('$' + hex(p.ryo5, 1) + hex(p.ryo, 4), {}, ALPHABET)}</span></span>`;
+    for (const [k] of [...FLAGS, ...KEYS]) f(k).checked = !!p[k];
+    for (const [k] of ITEMS) { f(k).max = G() ? 255 : 99; f(k).value = p[k]; }
+  }
+  const notes = [];
+  if (!long) notes.push('A short code also stores the four jutsu, but the game clears them as the zone starts.');
+  if (s.stage === 0 && long) notes.push('A full logbook for zone 1 starts in zone 2: the game moves it there. Use a short code for zone 1.');
+  if (s.stage === 8) notes.push(long ? 'There is no zone 8 start point: a full logbook starts where zone 9 does.' : 'There is no zone 8 start point: a short code freezes on a black screen.');
+  if (s.stage >= 8 && long) notes.push(s.story >= 6 ? 'Story steps 6 and 7 crash the game in zone 9.' : 'Starts in the white cell with the mesh door; hit the wall until a door opens.');
+  if (s.stage === 9 && !long) notes.push('Starts in the barred prison cell, with a short scene.');
+  $('stage_note').textContent = notes.join(' ');
+  form.elements.ver.value = ver;
+  const pw = shown ?? enc(s);
+  cells = layout(s);
+  $('code').innerHTML = $('big_code').innerHTML = codeHTML(pw);
+  step = 0;
+  guide();
+  const who = s.players === 3 ? '2 players' : s.players === 0 ? 'nobody (the game starts Kid Ying)' : NAMES[s.players === 2 ? 1 : 0];
+  const p = s.p[s.players === 2 ? 1 : 0];
+  $('summary').textContent = $('big_sum').textContent = long
+    ? `${pw.length} symbols · ${zone(s)} · ${who} · ${fmtRyo(p)} · weapon Lv ${p.weapon + 1}`
+    : `${pw.length} symbols · ${zone(s)} · ${who} · zone only`;
+}
+
+function setGlitch(on) {
+  glitch.checked = on;
+  form.querySelectorAll('.glitch-opt').forEach(l => { l.hidden = !on; });
+  if (!on) {
+    if (state.stage === 8) state.stage = 9;
+    if (state.players === 0) state.players = 1;
+    for (const p of state.p) {
+      if (p.weapon > 2) p.weapon = 2;
+      for (const [k, , , max, , kind] of NUMS) {
+        const v = kind === 'bcd' ? fromBCD(p[k]) : p[k];
+        if (v === null || v > max) p[k] = kind === 'bcd' ? toBCD(max) : max;
+      }
+      for (const [k] of ITEMS) p[k] = Math.min(99, p[k]);
+      if (ryo(p) === null) { p.ryo = 0x9999; p.ryo5 = 9; }
+      if (p.health > p.maxHealth) p.health = p.maxHealth;
+    }
+  }
+  render();
+}
+const isGlitch = s => s.stage === 8 || s.players === 0 || s.p.some(p => p.weapon > 2 || p.health > p.maxHealth || ryo(p) === null || ITEMS.some(([k]) => p[k] > 99)
+  || NUMS.some(([k, , , max, , kind]) => { const v = kind === 'bcd' ? fromBCD(p[k]) : p[k]; return v === null || v > max; }));
+
+form.addEventListener('input', e => {
+  const t = e.target, s = state;
+  if (t.name === 'ver') return setVer(t.value);
+  shown = null;
+  delete s.pad; delete s.tail;  // unread bits kept from a pasted logbook; drop them once it's edited
+  const m = t.name.match(/^p(\d)\.(\w+)$/);
+  const int = (v, max) => Math.max(0, Math.min(max, Math.trunc(+v) || 0));
+  if (!m) {
+    if (t.name === 'out') { s.out = [...form.elements.out].reduce((a, c) => a | (c.checked ? +c.value : 0), 0); }
+    else s[t.name] = +t.value;
+  } else {
+    const p = s.p[+m[1]], k = m[2], num = NUMS.find(n => n[0] === k);
+    if (k === 'money') { const r = int(t.value, 99999); p.ryo = toBCD(r % 10000); p.ryo5 = Math.trunc(r / 10000); }
+    else if (/^d\d$/.test(k)) {
+      const d = +k[1], v = int(t.value, 15);
+      if (d === 4) p.ryo5 = v; else p.ryo = p.ryo & ~(15 << 4 * d) | v << 4 * d;
+    }
+    else if (num) p[k] = num[5] === 'bcd' ? toBCD(int(t.value, num[4])) : int(t.value, num[4]);
+    else if (t.type === 'checkbox') p[k] = t.checked ? 1 : 0;
+    else if (k === 'weapon') p.weapon = +t.value;
+    else p[k] = int(t.value, G() ? 255 : 99);
+    if (k === 'maxHealth' && p.health > p.maxHealth && !G()) p.health = p.maxHealth;
+    delete p.pad;
+  }
+  render();
+});
+glitch.addEventListener('change', () => setGlitch(glitch.checked));
+$('reset').onclick = () => { state = NEW_GAME(); shown = null; render(); };
+$('max').onclick = () => { state = { ...state, long: 1, story: 0, out: 0, event: 0, pad: undefined, tail: undefined, p: [maxed(), maxed()] }; shown = null; render(); };
+
+// Field map: point at a symbol to see what it stores, or at a control to see its symbols
+const FIELD = { length: 'length', key: 'version', checksum: 'checksum', unused: 'unused', stage: 'zone', out: 'players out', story: 'story step',
+  players: 'players', event: 'area event', ryo: 'ryo', ryo5: 'ryo (5th digit)', weapon: 'weapon',
+  ...Object.fromEntries([...NUMS, ...ITEMS, ...FLAGS, ...KEYS].map(([k, t]) => [k, t.toLowerCase()])) };
+const fieldName = f => { const [, p, k] = f.match(/^(?:p(\d)\.)?(\w+)$/); return (p ? NAMES[p] + ' · ' : '') + FIELD[k]; };
+function mark(fields) {
+  for (const g of $('code').querySelectorAll('.gl')) g.classList.toggle('hl', !!fields && (cells[g.dataset.i] ?? []).some(f => fields.includes(f)));
+}
+$('code').addEventListener('pointerover', e => {
+  const i = e.target.dataset?.i;
+  if (i === undefined) return;
+  mark(cells[i]);
+  $('symbol_info').textContent = `Symbol ${+i + 1}: ${[...new Set((cells[i] ?? []).map(fieldName))].join(', ')}`;
+});
+$('code').addEventListener('pointerleave', () => { mark(null); $('symbol_info').textContent = ''; });
+const fieldsOf = name => { const m = name.match(/^(p\d\.)(money|d\d)$/); return m ? [m[1] + 'ryo', m[1] + 'ryo5'] : [name]; };
+for (const type of ['pointerover', 'focusin']) form.addEventListener(type, e => {
+  const name = e.target.closest('.field, .item, .tog')?.querySelector('input[name]')?.name;
+  mark(name ? fieldsOf(name) : null);
+});
+form.addEventListener('pointerleave', () => mark(null));
+form.addEventListener('focusout', () => mark(null));
+
+// Typing guide: the entry screen's grid; the cursor starts on the first symbol and END is at the bottom right
+const KB = { us: ['BDGHJKLMNP', 'QRTVWXYZ#$', 'bdghjklmnp', 'qrtvwxyz%&', '0123456789', '!"^*+-/:;<', '=>?@'],
+  kana: ['あいうえおやゆよわ', 'かきくけこらりるれろ', 'さしすせそがぎぐげご', 'たちつてとざじずぜぞ', 'なにぬねのだぢづでど', 'はひふへほぱぴぷぺぽ', 'まみむめも'] };
+const kbRows = () => abc() === KANA ? KB.kana : KB.us;
+const where = c => { const r = kbRows().findIndex(row => row.includes(c)); return [r, [...kbRows()[r]].indexOf(c)]; };
+function drawKB() {
+  const rows = kbRows(), cell = c => `<span data-c="${esc(c)}">${codeHTML(c)}</span>`, gap = n => '<span></span>'.repeat(n);
+  $('kb').innerHTML = rows.slice(0, 6).map(r => [...r].map(cell).join('') + gap(10 - [...r].length)).join('')
+    + [...rows[6]].map(cell).join('') + gap(6 - [...rows[6]].length)
+    + `<span>←</span><span>→</span><span class="end" data-c="END">${abc() === KANA ? 'おわり' : 'END'}</span>`;
+}
+drawKB();
+function guide() {
+  const pw = shown ?? enc(state), n = pw.length, end = abc() === KANA ? 'おわり' : 'END';
+  const at = k => k < 0 ? [0, 0] : k < n ? where(pw[k]) : [6, 8];
+  const [r0, c0] = at(step - 1), [r, c] = at(step);
+  // checked in Mesen on both grids: the bottom row skips its gap (@/も → ← is one press), and the kana grid's top row
+  // has no column 9 (right from わ drops to ろ), so go across first except out of the bottom row or up to column 9
+  const h = d => d > 0 ? `→${d}` : d < 0 ? `←${-d}` : '', v = d => d > 0 ? `↓${d}` : d < 0 ? `↑${-d}` : '';
+  const parts = step === n && r0 === 6 ? [h(6 - c0)] : r0 === 6 || (r0 === 0 && c === 9) ? [v(r - r0), h(c - c0)] : [h(c - c0), v(r - r0)];
+  const moves = parts.filter(Boolean).join(' ') || 'stay put';
+  $('guide_step').textContent = step < n ? `Symbol ${step + 1} of ${n}: ${SHOW[pw[step]] ?? pw[step]} (${moves}, then B)` : `Then ${end} (${moves}, then B)`;
+  for (const k of $('kb').children) k.classList.toggle('at', k.dataset.c === (step < n ? pw[step] : 'END'));
+  $('big_code').querySelectorAll('.gl').forEach((g, k) => { g.classList.toggle('done', k < step); g.classList.toggle('cur', k === step); });
+  $('prev').disabled = step === 0;
+  $('next').disabled = step === n;
+}
+$('prev').onclick = () => { step = Math.max(0, step - 1); guide(); };
+$('next').onclick = () => { step = Math.min((shown ?? enc(state)).length, step + 1); guide(); };
+$('big').addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); $('next').click(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); $('prev').click(); }
+});
+
+let copyTimer;
+$('copy').onclick = async () => {
+  const pw = spaced(shown ?? enc(state));
+  try { await navigator.clipboard.writeText(pw); $('copy').textContent = 'Copied ✓'; }
+  catch { $('status').textContent = 'Copy failed. Select the password and copy it by hand.'; }
+  clearTimeout(copyTimer);
+  copyTimer = setTimeout(() => { $('copy').textContent = 'Copy'; }, 1500);
+};
+$('big_open').onclick = () => { step = 0; guide(); $('big').showModal(); };
+$('big_close').onclick = () => $('big').close();
+
+// Fixes for a mistyped logbook: every valid one a single symbol away, likely mix-ups first
+const LOOKALIKE = { o: '0', O: '0', I: 'l', l: 'L', L: 'l', K: 'k', k: 'K', w: 'W', W: 'w', x: 'X', X: 'x', z: 'Z', Z: 'z',
+  v: 'V', V: 'v', 1: 'l', 0: 'Q', Q: '0', '^': '*', '*': '^', "'": '"',
+  // kana the game doesn't have, and easy swaps between the ones it does
+  ば: 'ぱ', び: 'ぴ', ぶ: 'ぷ', べ: 'ぺ', ぼ: 'ぽ', ぁ: 'あ', ぃ: 'い', ぅ: 'う', ぇ: 'え', ぉ: 'お', っ: 'つ', ゃ: 'や', ゅ: 'ゆ', ょ: 'よ',
+  を: 'お', じ: 'ぢ', ぢ: 'じ', ず: 'づ', づ: 'ず', は: 'ぱ', ぱ: 'は', へ: 'ぺ', ぺ: 'へ', ろ: 'る', る: 'ろ', ぬ: 'め', め: 'ぬ' };
+function fixes(t, only) {
+  const out = [];
+  for (let i = 0; i < t.length; i++) {
+    if (only && !only.includes(t[i])) continue;
+    for (const c of abc()) {
+      if (c === t[i]) continue;
+      const u = t.slice(0, i) + c + t.slice(i + 1), r = decode(u, ver);
+      if (r.state && !r.error) out.push({ u, near: LOOKALIKE[t[i]] === c });
+    }
+  }
+  return out.sort((a, b) => b.near - a.near).slice(0, 6);
+}
+const WHY = { 'length-char': "its first symbol doesn't match its length", checksum: "the checksum doesn't match", stage: 'its zone is 10 or more', story: 'its story step is 8 or more' };
+function load(text) {
+  const t = clean(text), r = decode(t, ver), err = $('perr');
+  err.className = 'err';
+  let other = r.error && Object.keys(VERSIONS).find(k => k !== ver && !decode(t, k).error);
+  // mostly the other script (kana in US mode or the reverse): switch first, then the fixes make sense
+  const script = r.error === 'glyph' && Object.keys(VERSIONS).find(k => VERSIONS[k][0] !== abc() && [...t].filter(c => VERSIONS[k][0].includes(c)).length > t.length / 2);
+  if (other || script) {  // fine for another release: offer to switch
+    err.textContent = other ? `That's a logbook for ${VNAME[other]}. ` : `That's written in ${abc() === KANA ? 'Western symbols' : 'kana'}. `;
+    other ||= script;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = `Switch to ${VNAME[other]}`;
+    b.onclick = () => { setVer(other); load(t); };
+    err.append(b);
+    return;
+  }
+  if (r.error === 'length') { err.textContent = `A logbook is 6, 7, 31 or 55 symbols; this has ${r.length}.`; return; }
+  if (r.error) {
+    const fx = r.error === 'glyph'
+      ? ([6, 7, 31, 55].includes(t.length) ? fixes(t, r.bad) : [])
+      : fixes(t);
+    err.textContent = (r.error === 'glyph'
+      ? `${r.bad.join(' ')} ${r.bad.length > 1 ? "aren't" : "isn't"} one of the game's symbols (${abc() === KANA ? 'there are no ば-row or small kana, and no ん or を' : "there's no O or I"}).`
+      : `The game won't take this: ${WHY[r.error]}.`) + (fx.length ? ' Did you mean:' : r.error === 'glyph' ? '' : " There's no one-symbol fix.");
+    // the paste as typed, with the symbols the fixes change (or the unknown ones) marked
+    const diff = u => [...u].findIndex((c, i) => c !== t[i]);
+    const suspects = r.error === 'glyph' ? [...t].flatMap((c, i) => abc().includes(c) ? [] : [i]) : fx.map(({ u }) => diff(u));
+    if ([6, 7, 31, 55].includes(t.length) && suspects.length) {
+      const m = document.createElement('span');
+      m.className = 'code mini';
+      m.innerHTML = codeHTML(t, Object.fromEntries(suspects.map(i => [i, 'bad'])));
+      err.append(document.createElement('br'), m, document.createElement('br'));
+    }
+    for (const { u } of fx) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'fixbtn';
+      b.setAttribute('aria-label', `Use ${spaced(u)}`);
+      b.innerHTML = `<span class="code mini" style="margin:0">${codeHTML(u, { [diff(u)]: 'fix' })}</span>`;
+      b.onclick = () => { $('paste').value = spaced(u); load(u); };
+      err.append(b);
+    }
+    return;
+  }
+  err.className = 'ok';
+  err.textContent = `Valid: ${zone(r.state)}, ${r.state.long ? 'full logbook' : 'short code'}.`;
+  const s = r.state;
+  for (const i of [0, 1]) s.p[i] = { ...blank(), ...s.p[i] };
+  state = { ...s, long: s.long ? 1 : 0 };
+  shown = enc(state) === t ? t : null;
+  setGlitch(isGlitch(state) || G());
+}
+$('load').onclick = () => load($('paste').value);
+$('paste').addEventListener('keydown', e => { if (e.key === 'Enter') load($('paste').value); });
+
+setGlitch(false);
+
+// [title, where it starts, password, status ('new' | 'fixed' | 'known'), note, as posted]
+const CODES = [
+  ['Zone 1 · Edo', 'Short code', 'MRbjhj', 'known'],
+  ['Zone 2 · Shikoku', 'Short code', '#rM/B/', 'known'],
+  ['Zone 3 · Awa', 'Short code', '8hXw0w', 'fixed', 'Posted with a letter o; the game has no o, it\'s a zero.', '8hXwow'],
+  ['Zone 4 · Harima', 'Short code', 'W:3LNL', 'known'],
+  ['Zone 5 · Iga', 'Short code', 'k=bPbR', 'fixed', 'Posted with a capital K, which fails.', 'K=bPbR'],
+  ['Zone 6', 'Short code', '1tL<H<', 'fixed', 'Posted with a lower-case l, which fails the checksum.', '1tl<H<'],
+  ['Zone 7 · Izumo', 'Short code', '/j#2^2', 'new', 'The one zone missing from the posted list.'],
+  ['Zone 8 · Ryukyu', 'Short code', '"?kk5k', 'fixed', 'The two quote marks are one " symbol.', "''?kk5k"],
+  ['Zone 9 · the castle', 'Short code, barred prison cell', '&xT>X>', 'known', 'Posted twice, as "Level 9" and as H-WNxN "Final Level"; both open in the barred cell with a short scene.'],
+  ['Last level, fully stocked', 'Zone 9, white cell', '8#4V7LprBy4v52Bj@7-TYM?0P7/4By;', 'known', 'Full health, weapon Lv 3, all jutsu. Hit the white cell wall until a door opens.'],
+  ['Second-to-last level, fully stocked', 'Zone 8, Ryukyu', '*63>^:tH!8d%W!L1G^4MdTH6Q^>HLwW', 'fixed',
+    'The posted one fails the checksum. A capital W is the likeliest misread, but other one-symbol fixes also pass and load the same zone.', '¢63>¥ :tH!8 d%w!L 1G¥4M dTH6Q ¥>HLw W'],
+  ['"Unlimited" hamburgers', 'Zone 3, Awaji theme park', 'vxZ++lh:@Ynn3+!$T+KKhG:!<+!+X@r', 'fixed',
+    ['Posted with a capital I; it\'s a lower-case l.', 'Gives 128 hamburgers: each time your health hits 0 one is eaten for +4 health and no life is lost.'], 'vxZ++Ih:@Ynn3+!$T+KKhG:!<+!+X@r'],
+  ['255 hamburgers', 'Zone 2', 'b!DQQTnQhTQThQDz*Q991!QD^RBQQvM', 'new', 'The most the field holds: 255 lives\' worth of +4 health.'],
+  ['Max kit', 'Zone 2', 'b!DQQZ%$"Rt<5JBy+J--04N?+vkJl<J', 'new', '99,999 ryo, POW 19, 39 bombs, all jutsu, 255 of every helmet, armor and whole pizza, every key item. Uses glitch values.'],
+  ['Coin-throw weapon (Lv 4)', 'Zone 2', 'b!DQQTNQDVN>lQDz*Q991!QD^QDN+8Y', 'new', 'Weapon level 4: the attack throws coins and each throw costs ryo. Starts with 500 ryo and no spare lives.'],
+  ['Two players, zone 4', 'Short code', ':jH204;', 'new', 'Kid Ying and Dr. Yang together.'],
+  ['Two players, last level stocked', 'Zone 9, white cell', 'lj/N0<*kM2%mvyMKh0>$JV/Yb0r%*70kM/%#ryNg0t901v/l*01=*Wt', 'new', 'The "Last level" kit for both players.'],
+  ['Zone 8½', 'Zone 9, white cell', '%>H3Hmq^dWL!D@d&"Hp/w>$>+HTLdJQ', 'new', 'The "Last level" kit with zone 8½ selected. There is no zone 8 start, so the game uses zone 9\'s.'],
+];
+const BADGE = { new: 'new">★ New', fixed: 'fixed">Fixed', known: 'known">Known' };
+function card([title, where, us, status, note, posted]) {
+  const s = decode(us).state, pw = ver === 'us' ? us : encode(s, ver), el = document.createElement('article');
+  let [fix, about] = [note].flat();  // note: text, or [typo note, description]
+  if (ver !== 'us' && status === 'fixed') posted = fix = null;  // the typo notes are about the Western symbols
+  note = [fix, about].filter(Boolean).join(' ');
+  el.className = 'code-card';
+  el.style.setProperty('--z', start(s));
+  const who = [s.players & 1 ? ico('ying') : '', s.players & 2 ? ico('yang') : ''].join('');
+  el.innerHTML = `<h3>${esc(title)}<span class="badge ${BADGE[status]}</span></h3><p class="where">${who}${esc(where)}</p>
+    <button type="button" class="pw" aria-label="Load ${esc(spaced(pw))}"><span class="code">${codeHTML(pw)}</span></button>
+    ${posted ? `<p class="note">Posted as <s>${esc(posted)}</s></p>` : ''}${note ? `<p class="note">${esc(note)}</p>` : ''}`;
+  el.querySelector('.pw').addEventListener('click', () => {
+    $('paste').value = spaced(pw);
+    load(pw);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  return el;
+}
+const n = s => CODES.filter(c => c[3] === s).length;
+$('codes_sum').textContent = `${CODES.length} codes: ${n('known')} posted on GameFAQs that work as written, ${n('fixed')} posted ones with a typo fixed, and ${n('new')} new.`;
+
+// everything that depends on which release's symbols are shown
+function showVersion() {
+  const kana = abc() === KANA;
+  $('alpha').textContent = [...abc()].map(c => SHOW[c] ?? c).join('');
+  $('paste_hint').textContent = kana ? 'Type in hiragana or katakana.' : 'Upper and lower case are different symbols. Type △ as ^ and ♡ as * if you like.';
+  $('paste').placeholder = kana ? '6, 7, 31 or 55 kana' : '6, 7, 31 or 55 symbols';
+  $('kb_hint').textContent = kana ? 'B enters a symbol, Y deletes one. The cursor starts on あ.' : 'B enters a symbol, A or Y deletes one. The cursor starts on B and stops at the edges.';
+  drawKB();
+  $('codes').replaceChildren(...CODES.map(card));
+}
+function setVer(v) {
+  ver = v;
+  try { localStorage.setItem('mninja-ver', v); } catch {}
+  shown = null;
+  $('perr').textContent = '';
+  showVersion();
+  render();
+}
+showVersion();
+render();
+</script>
+</body>
+</html>
