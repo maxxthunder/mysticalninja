@@ -16,7 +16,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Space+Mono:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@400;500;700&family=Space+Mono:wght@700&display=swap">
 <style>
 /* Layout: one column; the logbook scroll is up top, then the logbook and player cards (they stack on a phone) */
 :root {
@@ -24,7 +24,7 @@
   --bg: #11131f; --panel: #1b1e30; --ink: #efe6d6; --muted: #9c9ab0; --line: #2f3352;
   --brass: #e8553f; --brass-soft: #3b1f24; --plate: #f2e4c9; --plate-ink: #3b2a1c; --scroll: #e8685f; --bad: #ff8a72; --gold: #f4c54a;
   --sky: #3984ff;  /* the title screen's sky, behind the logo */
-  --display: "Shippori Mincho B1", Georgia, serif; --body: "Zen Kaku Gothic New", system-ui, sans-serif;
+  --display: "Dela Gothic One", system-ui, sans-serif; --body: "M PLUS Rounded 1c", system-ui, sans-serif;
   --mono: "Space Mono", ui-monospace, Consolas, monospace; color-scheme: dark;
 }
 [hidden] { display: none !important; }
@@ -32,7 +32,7 @@ body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--body); mar
 .wrap { max-width: 900px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 24px; display: grid; gap: 24px; }
 header { text-align: center; }
 .banner { background: var(--sky); border-radius: 6px; padding: 18px 16px 14px; }
-h1 { font: 800 clamp(1.5rem, 4.6vw, 2.2rem)/1.15 var(--display); margin: 0; letter-spacing: .02em; text-wrap: balance; color: #fff;
+h1 { font: 400 clamp(1.5rem, 4.6vw, 2.2rem)/1.15 var(--display); margin: 0; letter-spacing: .02em; text-wrap: balance; color: #fff;
   text-shadow: 0 2px 0 #1b3f86; }
 h1 .logo { display: block; width: min(100%, 600px); height: auto; margin: 0 auto 8px; image-rendering: pixelated; }
 .sub { color: var(--muted); margin: 10px auto 0; max-width: 62ch; }
@@ -58,7 +58,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--brass); out
 #copy { min-width: 6.5em; }
 .status { font-size: .9rem; opacity: .85; }
 section { display: grid; gap: 12px; }
-h2 { font: 800 1.15rem var(--display); margin: 0; letter-spacing: .03em; display: flex; align-items: center; gap: 10px; }
+h2 { font: 400 1.15rem var(--display); margin: 0; letter-spacing: .03em; display: flex; align-items: center; gap: 10px; }
 .row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
 .seg label { padding: 6px 12px; cursor: pointer; background: var(--panel); border-left: 1px solid var(--line); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
@@ -130,8 +130,6 @@ td, th { border-bottom: 1px solid var(--line); padding: 4px 10px 4px 0; text-ali
 .badge.new { background: var(--brass); color: #fff; position: absolute; top: 0; right: 16px; border-radius: 0 0 4px 4px; padding: 3px 9px; }
 .code-card:has(.badge.new) { padding-top: 20px; }
 .code-card:has(.badge.new) h3 { padding-right: 76px; }
-.badge.known { border: 1px solid var(--line); color: var(--muted); }
-.badge.fixed { border: 1px solid var(--gold); color: var(--gold); }
 .code-card button.pw { justify-self: start; background: var(--plate); border-color: transparent; padding: 10px 12px; }
 .code-card .code { font-size: 16px; }
 /* each card's left edge takes its starting zone's colour */
@@ -139,7 +137,6 @@ td, th { border-bottom: 1px solid var(--line); padding: 4px 10px 4px 0; text-ali
 .code-card .where { display: flex; align-items: center; gap: 4px; }
 .code-card .where .ico { width: 24px; height: 24px; }
 .code-card .where .ico:last-of-type { margin-right: 4px; }
-.code-card s { color: var(--muted); font-family: var(--mono); font-size: .85rem; word-break: break-all; }
 footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: .9rem; color: var(--muted); flex-wrap: wrap; }
 footer a { color: var(--brass); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
 /* big-text view for reading the password while typing it into the game */
@@ -260,7 +257,6 @@ body:has(#big[open]) { overflow: hidden; }
 
   <section class="codes" aria-labelledby="codes_h">
     <h2 id="codes_h">Logbook codes</h2>
-    <p class="hint" id="codes_sum"></p>
     <div class="code-list" id="codes"></div>
     <p class="hint">Every code here was loaded in an emulator (Mesen 2). Click a code to load it into the generator.</p>
   </section>
@@ -686,41 +682,35 @@ $('paste').addEventListener('compositionend', typed);
 
 setGlitch(false);
 
-// [title, where it starts, password, status ('new' | 'fixed' | 'known'), note, as posted]
+// [title, where it starts, password, note, true for a code first found here]
 const CODES = [
-  ['Zone 1 · Edo', 'Short code', 'MRbjhj', 'known'],
-  ['Zone 2 · Shikoku', 'Short code', '#rM/B/', 'known'],
-  ['Zone 3 · Awa', 'Short code', '8hXw0w', 'fixed', 'Posted with a letter o; the game has no o, it\'s a zero.', '8hXwow'],
-  ['Zone 4 · Harima', 'Short code', 'W:3LNL', 'known'],
-  ['Zone 5 · Iga', 'Short code', 'k=bPbR', 'fixed', 'Posted with a capital K, which fails.', 'K=bPbR'],
-  ['Zone 6', 'Short code', '1tL<H<', 'fixed', 'Posted with a lower-case l, which fails the checksum.', '1tl<H<'],
-  ['Zone 7 · Izumo', 'Short code', '/j#2^2', 'new', 'The one zone missing from the posted list.'],
-  ['Zone 8 · Ryukyu', 'Short code', '"?kk5k', 'fixed', 'The two quote marks are one " symbol.', "''?kk5k"],
-  ['Zone 9 · the castle', 'Short code, barred prison cell', '&xT>X>', 'known', 'Posted twice, as "Level 9" and as H-WNxN "Final Level"; both open in the barred cell with a short scene.'],
-  ['Last level, fully stocked', 'Zone 9, white cell', '8#4V7LprBy4v52Bj@7-TYM?0P7/4By;', 'known', 'Full health, weapon Lv 3, all jutsu. Hit the white cell wall until a door opens.'],
-  ['Second-to-last level, fully stocked', 'Zone 8, Ryukyu', '*63>^:tH!8d%W!L1G^4MdTH6Q^>HLwW', 'fixed',
-    'The posted one fails the checksum. A capital W is the likeliest misread, but other one-symbol fixes also pass and load the same zone.', '¢63>¥ :tH!8 d%w!L 1G¥4M dTH6Q ¥>HLw W'],
-  ['"Unlimited" hamburgers', 'Zone 3, Awaji theme park', 'vxZ++lh:@Ynn3+!$T+KKhG:!<+!+X@r', 'fixed',
-    ['Posted with a capital I; it\'s a lower-case l.', 'Gives 128 hamburgers: each time your health hits 0 one is eaten for +4 health and no life is lost.'], 'vxZ++Ih:@Ynn3+!$T+KKhG:!<+!+X@r'],
-  ['255 hamburgers', 'Zone 2', 'b!DQQTnQhTQThQDz*Q991!QD^RBQQvM', 'new', 'The most the field holds: 255 lives\' worth of +4 health.'],
-  ['Max kit', 'Zone 2', 'b!DQQZ%$"Rt<5JBy+J--04N?+vkJl<J', 'new', '99,999 ryo, POW 19, 39 bombs, all jutsu, 255 of every helmet, armor and whole pizza, every key item. Uses glitch values.'],
-  ['Coin-throw weapon (Lv 4)', 'Zone 2', 'b!DQQTNQDVN>lQDz*Q991!QD^QDN+8Y', 'new', 'Weapon level 4: the attack throws coins and each throw costs ryo. Starts with 500 ryo and no spare lives.'],
-  ['Two players, zone 4', 'Short code', ':jH204;', 'new', 'Kid Ying and Dr. Yang together.'],
-  ['Two players, last level stocked', 'Zone 9, white cell', 'lj/N0<*kM2%mvyMKh0>$JV/Yb0r%*70kM/%#ryNg0t901v/l*01=*Wt', 'new', 'The "Last level" kit for both players.'],
-  ['Zone 8½', 'Zone 9, white cell', '%>H3Hmq^dWL!D@d&"Hp/w>$>+HTLdJQ', 'new', 'The "Last level" kit with zone 8½ selected. There is no zone 8 start, so the game uses zone 9\'s.'],
+  ['Zone 1 · Edo', 'Short code', 'MRbjhj'],
+  ['Zone 2 · Shikoku', 'Short code', '#rM/B/'],
+  ['Zone 3 · Awa', 'Short code', '8hXw0w'],
+  ['Zone 4 · Harima', 'Short code', 'W:3LNL'],
+  ['Zone 5 · Iga', 'Short code', 'k=bPbR'],
+  ['Zone 6', 'Short code', '1tL<H<'],
+  ['Zone 7 · Izumo', 'Short code', '/j#2^2'],
+  ['Zone 8 · Ryukyu', 'Short code', '"?kk5k'],
+  ['Zone 9 · the castle', 'Short code, barred prison cell', '&xT>X>', 'Opens with a short scene.'],
+  ['Last level, fully stocked', 'Zone 9, white cell', '8#4V7LprBy4v52Bj@7-TYM?0P7/4By;', 'Full health, weapon Lv 3, all jutsu. Hit the white cell wall until a door opens.'],
+  ['Second-to-last level, fully stocked', 'Zone 8, Ryukyu', '*63>^:tH!8d%W!L1G^4MdTH6Q^>HLwW'],
+  ['"Unlimited" hamburgers', 'Zone 3, Awaji theme park', 'vxZ++lh:@Ynn3+!$T+KKhG:!<+!+X@r', 'Gives 128 hamburgers: each time your health hits 0 one is eaten for +4 health and no life is lost.'],
+  ['255 hamburgers', 'Zone 2', 'b!DQQTnQhTQThQDz*Q991!QD^RBQQvM', 'The most the field holds: 255 lives\' worth of +4 health.', true],
+  ['Max kit', 'Zone 2', 'b!DQQZ%$"Rt<5JBy+J--04N?+vkJl<J', '99,999 ryo, POW 19, 39 bombs, all jutsu, 255 of every helmet, armor and whole pizza, every key item. Uses glitch values.', true],
+  ['Coin-throw weapon (Lv 4)', 'Zone 2', 'b!DQQTNQDVN>lQDz*Q991!QD^QDN+8Y', 'Weapon level 4: the attack throws coins and each throw costs ryo. Starts with 500 ryo and no spare lives.', true],
+  ['Two players, zone 4', 'Short code', ':jH204;', 'Kid Ying and Dr. Yang together.', true],
+  ['Two players, last level stocked', 'Zone 9, white cell', 'lj/N0<*kM2%mvyMKh0>$JV/Yb0r%*70kM/%#ryNg0t901v/l*01=*Wt', 'The "Last level" kit for both players.', true],
+  ['Zone 8½', 'Zone 9, white cell', '%>H3Hmq^dWL!D@d&"Hp/w>$>+HTLdJQ', 'The "Last level" kit with zone 8½ selected. There is no zone 8 start, so the game uses zone 9\'s.', true],
 ];
-const BADGE = { new: 'new">★ New', fixed: 'fixed">Fixed', known: 'known">Known' };
-function card([title, where, us, status, note, posted]) {
+function card([title, where, us, note, isNew]) {
   const s = decode(us).state, pw = encode(s, ver), el = document.createElement('article');
-  let [fix, about] = [note].flat();  // note: text, or [typo note, description]
-  if (ver !== 'us' && status === 'fixed') posted = fix = null;  // the typo notes are about the Western symbols
-  note = [fix, about].filter(Boolean).join(' ');
   el.className = 'code-card';
   el.style.setProperty('--z', start(s));
   const who = [s.players & 1 ? ico('ying') : '', s.players & 2 ? ico('yang') : ''].join('');
-  el.innerHTML = `<h3>${esc(title)}<span class="badge ${BADGE[status]}</span></h3><p class="where">${who}${esc(where)}</p>
+  el.innerHTML = `<h3>${esc(title)}${isNew ? '<span class="badge new">★ New</span>' : ''}</h3><p class="where">${who}${esc(where)}</p>
     <button type="button" class="pw" aria-label="Load ${esc(spaced(pw))}"><span class="code">${codeHTML(pw)}</span></button>
-    ${posted ? `<p class="note">Posted as <s>${esc(posted)}</s></p>` : ''}${note ? `<p class="note">${esc(note)}</p>` : ''}`;
+    ${note ? `<p class="note">${esc(note)}</p>` : ''}`;
   el.querySelector('.pw').addEventListener('click', () => {
     $('paste').value = spaced(pw);
     load(pw);
@@ -728,8 +718,6 @@ function card([title, where, us, status, note, posted]) {
   });
   return el;
 }
-const n = s => CODES.filter(c => c[3] === s).length;
-$('codes_sum').textContent = `${CODES.length} codes: ${n('known')} posted on GameFAQs that work as written, ${n('fixed')} posted ones with a typo fixed, and ${n('new')} new.`;
 
 // everything that depends on which release's symbols are shown
 function showVersion() {
