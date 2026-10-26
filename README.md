@@ -26,7 +26,7 @@ The US, US Virtual Console, European and German releases all take the same logbo
 2. Type the symbols: B types one, Y deletes. Upper and lower case are different symbols, and there's no O or I. The generator's decoder fixes common mix-ups like o/0, I/l and K/k.
 3. Move to **END** and press B.
 
-On the Japanese release: choose **つづきをあそぶ**, then **たびにっきを つけたところから**. B types a kana, Y deletes, and **おわり** ends. Set the page's Game version to Japan 1.1–1.2 or Japan 1.0 first. Short codes work on every revision; if a full logbook fails, try the other Japanese setting.
+On the Japanese release: choose **つづきをあそぶ**, then **たびにっきを つけたところから**. B types a kana, A or Y deletes, and **おわり** ends. Set the page's Game version to Japan 1.1–1.2 or Japan 1.0 first. Short codes work on every revision; if a full logbook fails, try the other Japanese setting.
 
 A full logbook (31 symbols, 55 for two players) holds everything. A short one (6 or 7) also stores the four jutsu, but the game clears them as the zone starts, so only the zone counts.
 

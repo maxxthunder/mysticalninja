@@ -645,11 +645,14 @@ function load(text) {
 $('load').onclick = () => load($('paste').value);
 $('paste').addEventListener('keydown', e => { if (e.key === 'Enter') load($('paste').value); });
 // decode as you type once the length symbol agrees with the length, so the first 6 of a long code stay quiet
-$('paste').addEventListener('input', e => {
+// (a kana input method's last input event still says isComposing, so compositionend checks too)
+const typed = e => {
   if (e.isComposing) return;
   const t = $('paste').value;
   if (Object.keys(VERSIONS).some(k => !['glyph', 'length', 'length-char'].includes(decode(t, k).error))) load(t);
-});
+};
+$('paste').addEventListener('input', typed);
+$('paste').addEventListener('compositionend', typed);
 
 setGlitch(false);
 
@@ -704,7 +707,7 @@ function showVersion() {
   $('alpha').textContent = [...abc()].map(c => SHOW[c] ?? c).join('');
   $('paste_hint').textContent = kana ? 'Type in hiragana or katakana.' : 'Upper and lower case are different symbols. Type △ as ^ and ♡ as * if you like.';
   $('paste').placeholder = kana ? '6, 7, 31 or 55 kana' : '6, 7, 31 or 55 symbols';
-  $('kb_hint').textContent = kana ? 'B enters a symbol, Y deletes one. The cursor starts on あ.' : 'B enters a symbol, A or Y deletes one. The cursor starts on B and stops at the edges.';
+  $('kb_hint').textContent = kana ? 'B enters a symbol, A or Y deletes one. The cursor starts on あ.' : 'B enters a symbol, A or Y deletes one. The cursor starts on B and stops at the edges.';
   drawKB();
   $('codes').replaceChildren(...CODES.map(card));
 }

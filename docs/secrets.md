@@ -224,7 +224,7 @@ with stage 9, 6465 ryo, 3 lives, 8/8 health, weapon 2 and 24 gold helmet; `MRbjh
 reached with START, right (つづきをあそぶ), START, START, down (たびにっきを つけたところから), START; its
 grid is あいうえおやゆよわ / かきくけこらりるれろ / さしすせそがぎぐげご / たちつてとざじずぜぞ /
 なにぬねのだぢづでど / はひふへほぱぴぷぺぽ / まみむめも ← → おわり, and pressing right past わ drops to ろ.
-B enters a symbol and Y deletes one. The page's typing guide moves down first when it needs column 9
+B enters a symbol and A or Y deletes one (both checked in Mesen). The page's typing guide moves down first when it needs column 9
 from the top row; with that, all 64 kana typed in value order matched the ROM table, and the "Last
 level" code (1.2 and 1.0) and the two-player code (1.2) typed with real presses through おわり all
 loaded. The game draws the voicing marks on the 3-4 pixel rows above each 8x8 kana, so
