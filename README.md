@@ -82,7 +82,8 @@ Apart from the zone (below 10) and the story step (below 8), the game doesn't ra
 ### Other places we looked
 
 - **Button codes:** every table of button presses in the ROM is animation or input-mapping data. There's no title-screen or pause cheat code.
-- **Text:** the game's text is plain ASCII. A full dump turned up no debug menu or developer text.
+- **Text:** the game's text is plain ASCII. A full dump turned up no developer messages, only the romaji room names of the debug menu below.
+- **Debug menus:** two are left in the ROM, and neither can be reached in play. A room-select menu opens with Up on controller 2, but only in an unused zone 1 test room. A zone, area and story select has no code calling it. ([details](docs/secrets.md#debug-leftovers-and-unused-text))
 
 ## What the logbook holds
 

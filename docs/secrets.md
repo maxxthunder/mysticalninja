@@ -248,8 +248,23 @@ bosses and the ending are only partly covered).
   FOOD TOUR JOB MAZE URANAI BAKUCHI / BANYA OMITSU YANOSUKE NIKKI GAME MOGU KEIBA EAWASE / NAZO ONI SHOW
   HAMBURG YADO DOUJYOU FURO SHICHI / TAKARA PEINT NINKA1 MINKA2 TOUR2 GAIJIN ROUYA. Picking one warps into
   that interior (forced in Mesen: GOEMON gave "THIS IS YOUR HOUSE."). The handler is only listed for
-  stage 0 area 2, stages 11-12 area 2 and stages 10 and 13 (table `$01:E217`); stages 10+ can't be
-  loaded and stage 0 area 2 wasn't reached, so it looks unreachable. Same in all four ROMs.
+  zone 1 area 2, stages 11-12 area 2 and stages 10 and 13 (per-zone area handlers, table `$01:E217`,
+  indexed by `$82` then the area `$8A`); stages 10+ can't be loaded. Same in all four ROMs.
+
+  **Zone 1 area 2 is a test room nobody reaches.** Forcing each zone 1 area in Mesen (overriding `$8A`
+  as the logbook loader sets it, `$00:A84E`): 0 Edo, 1 the bamboo action stage, **2 a house room in town
+  mode** (tatami, a wall scroll, a tub), 3 the boss, 4 a raccoon-dog scene, 5 Edo at dusk, 6 a green maze.
+  In area 2, controller 2's Up opens the room menu. Normal play skips it: a new game's opening stays in
+  area 0, the action stage goes from area 1 straight to area 3 (Mesen, walking it with health held up), the
+  start-area table (`$01:8CED`) gives zone 1 only areas 0 and 4, and neither door table (`$01:DD8B`,
+  `$01:D780`; byte 3 = zone << 4 | area) leads to it. The only other `$8A` writes are the area-to-area
+  step (`$05:E9CC`), the return from an interior (`$05:B019`) and the dead menu below.
+
+  ![Zone 1 area 2, then controller 2's Up](img/test_room.png)
+- **Dead hex debug menu `$1C:A277`.** Nothing in the ROM calls it (no JSL, JML or pointer to it). It
+  prints rows of hex digits and steps them with the buttons in `$10`: zone `$82` (wrapping 0-9),
+  area `$8A`, story step `$8E`, `$AE` (−1 to 1) and bit 0 of `$1FF0`. A developer's zone, area and story
+  select, cut off from the game.
 
   ![Debug room select: the street, then Goemon's house](img/debug_warp.png)
 - **Debug camera flag `$EE`.** `$07:A751` runs every frame from the scroll code but does nothing unless
@@ -288,7 +303,6 @@ bosses and the ending are only partly covered).
 
 ## Open
 
-- Whether stage 0 area 2 (the one real stage that lists the debug room-select handler) exists in play.
 - The rhythm-minigame and two-player menu text above: unused or just not reached by the code logs.
 - `$19F6` mid-zone: its value when the game writes a logbook inside a section other than 0 is unknown;
   it is zeroed on load either way.
