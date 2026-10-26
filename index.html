@@ -231,8 +231,8 @@ body:has(#big[open]) { overflow: hidden; }
       <div class="field"><span>Kind</span><div class="seg" data-name="long"></div></div>
       <div class="field"><span>Players</span><div class="seg" data-name="players"></div></div>
       <div class="field"><span>Zone</span><div class="chars" data-name="stage"></div><p class="hint" id="stage_note"></p></div>
-      <div class="field"><label for="key">Version <output id="key_out"></output></label><input type="range" id="key" name="key" min="1" max="63">
-        <p class="hint">The game picks one of 63 versions at random each time it writes a logbook. They all load the same.</p></div>
+      <div class="field"><label for="key">Key <output id="key_out"></output></label><input type="range" id="key" name="key" min="1" max="63">
+        <p class="hint">The game picks one of 63 keys at random each time it writes a logbook; each one scrambles the symbols differently, and they all load the same.</p></div>
       <details class="long-only">
         <summary>Story flags</summary>
         <div class="field"><label for="story">Story step <output id="story_out"></output></label><input type="range" id="story" name="story" min="0" max="7">
@@ -372,7 +372,7 @@ for (const card of form.querySelectorAll('[data-player]')) {
 let state = NEW_GAME(), shown = null, cells = [], step = 0;  // shown: a pasted logbook, displayed as typed until something changes
 // which release's symbols: us (also EU, DE, VC), jp (Japan 1.1/1.2) or jp10 (Japan 1.0, other keys)
 let ver = 'us';
-try { ver = localStorage.getItem('mninja-ver') ?? 'us'; } catch {}
+try { ver = localStorage.getItem('mninja-ver') ?? (navigator.language.startsWith('ja') ? 'jp' : 'us'); } catch {}
 if (!VERSIONS[ver]) ver = 'us';
 const abc = () => VERSIONS[ver][0], enc = s => encode(s, ver);
 const VNAME = Object.fromEntries(OPTS.ver);
@@ -504,7 +504,7 @@ $('reset').onclick = () => { state = NEW_GAME(); shown = null; render(); };
 $('max').onclick = () => { state = { ...state, long: 1, story: 0, out: 0, event: 0, pad: undefined, tail: undefined, p: [maxed(), maxed()] }; shown = null; render(); };
 
 // Field map: point at a symbol to see what it stores, or at a control to see its symbols
-const FIELD = { length: 'length', key: 'version', checksum: 'checksum', unused: 'unused', stage: 'zone', out: 'players out', story: 'story step',
+const FIELD = { length: 'length', key: 'key', checksum: 'checksum', unused: 'unused', stage: 'zone', out: 'players out', story: 'story step',
   players: 'players', event: 'area event', ryo: 'ryo', ryo5: 'ryo (5th digit)', weapon: 'weapon',
   ...Object.fromEntries([...NUMS, ...ITEMS, ...FLAGS, ...KEYS].map(([k, t]) => [k, t.toLowerCase()])) };
 const fieldName = f => { const [, p, k] = f.match(/^(?:p(\d)\.)?(\w+)$/); return (p ? NAMES[p] + ' · ' : '') + FIELD[k]; };
@@ -644,6 +644,12 @@ function load(text) {
 }
 $('load').onclick = () => load($('paste').value);
 $('paste').addEventListener('keydown', e => { if (e.key === 'Enter') load($('paste').value); });
+// decode as you type once the length symbol agrees with the length, so the first 6 of a long code stay quiet
+$('paste').addEventListener('input', e => {
+  if (e.isComposing) return;
+  const t = $('paste').value;
+  if (Object.keys(VERSIONS).some(k => !['glyph', 'length', 'length-char'].includes(decode(t, k).error))) load(t);
+});
 
 setGlitch(false);
 

@@ -10,6 +10,11 @@
 - **Decode a logbook** you already have to see what it holds, and fix typos.
 - **Two players:** 7- and 55-symbol logbooks hold Kid Ying and Dr. Yang together. A 31-symbol logbook can also hold Dr. Yang alone, which the game writes after Kid Ying's game over.
 - **Glitch mode** for values past the game's own limits, like the coin-throw weapon.
+- **Japanese release:** a Game version switch shows and reads logbooks in kana (Japan 1.1–1.2, or 1.0), drawn in the game's own kana font.
+- **Typing guide:** a big-text view with the entry screen's grid, the next symbol lit and the button presses to reach it.
+- **See what each symbol holds:** point at a symbol to see its fields, or at a control to see its symbols. Each player card shows a live copy of the in-game HUD.
+
+![The generator showing a new-game logbook in the US symbols and in kana for the Japanese release, both in the game's own font](img/readme/page.png)
 
 Everything here comes from disassembling the ROM, and **every code below was loaded in an emulator (Mesen 2)** with its effect checked in RAM or on screen. The decoder was also fuzzed against the game's own: of 1,557 logbooks typed into the real entry screen, the game accepted exactly the 13 the generator accepts ([details](docs/secrets.md#fuzz-check-against-the-real-decoder)).
 
@@ -20,6 +25,8 @@ The US, US Virtual Console, European and German releases all take the same logbo
 1. On the title screen, choose **CONTINUE**, then **FROM LOGBOOK ENTRY**.
 2. Type the symbols: B types one, Y deletes. Upper and lower case are different symbols, and there's no O or I. The generator's decoder fixes common mix-ups like o/0, I/l and K/k.
 3. Move to **END** and press B.
+
+On the Japanese release: choose **つづきをあそぶ**, then **たびにっきを つけたところから**. B types a kana, Y deletes, and **おわり** ends. Set the page's Game version to Japan 1.1–1.2 or Japan 1.0 first. Short codes work on every revision; if a full logbook fails, try the other Japanese setting.
 
 A full logbook (31 symbols, 55 for two players) holds everything. A short one (6 or 7) also stores the four jutsu, but the game clears them as the zone starts, so only the zone counts.
 
@@ -107,7 +114,29 @@ A fresh 1P game starts with 0 ryo, 0 POW, 0 bombs, 2 lives and 8 max health.
 | Super Nintendo, Europe | Same | Same routines and tables, one byte further along in the ROM |
 | Super Nintendo, Germany | Same | Same routines; tables moved but identical. German menus (WEITER → VON LOGBUCHEINTRAG) |
 | Super Famicom, Japan 1.1 and 1.2 (and 1.2 Virtual Console) | Same values, kana symbols | US `B` is あ, and so on; the table is in [docs/secrets.md](docs/secrets.md#japan-ganbare-goemon-yuki-hime-kyuushutsu-emaki) |
-| Super Famicom, Japan 1.0 | Short codes the same; full logbooks differ | Different keys at 8 of the data symbols |
+| Super Famicom, Japan 1.0 | Short codes the same; full logbooks differ | Different keys at 7 of the data symbols |
+
+### Codes in kana
+
+Short codes are the same on every Japanese revision. The full logbooks below were loaded in Mesen in the versions shown.
+
+| Code (Japan) | US code | Starts in |
+|---|---|---|
+| `ゆきさそせそ` | `MRbjhj` | Zone 1 · Edo |
+| `れちゆぴあぴ` | `#rM/B/` | Zone 2 · Shikoku |
+| `でせらとなと` | `8hXw0w` | Zone 3 · Awa |
+| `こぷねやよや` | `W:3LNL` | Zone 4 · Harima |
+| `がまさわさき` | `k=bPbR` | Zone 5 · Iga |
+| `につやぽえぽ` | `1tL<H<` | Zone 6 |
+| `ぴそれぬふぬ` | `/j#2△2` | Zone 7 · Izumo |
+| `ひむががだが` | `"?kk5k` | Zone 8 · Ryukyu |
+| `ぞざくみらみ` | `&xT>X>` | Zone 9 · barred prison cell |
+| `ぷそえぬなのぺ` | `:jH204;` | Zone 4, two players |
+| `でれのけづ やごちあじ のてだぬあ そめづぱく りゆむなわ づぴのあじ ぺ` | Last level | Zone 9 · white cell (Japan 1.1–1.2) |
+| `でれのけづ やごちあじ のてだぬあ ぺめづぱく りゆむなわ づぴのあじ ぺ` | Last level | Zone 9 · white cell (Japan 1.0) |
+| `ぎそぴよな ぽへがゆぬ ぜぐてじゆ もせなみろ おけぴりさ なちぜへづ ながゆぴぜ れちじよす なつどなに てぴぎへな にまへこつ` | Last level, two players | Zone 9 · white cell (Japan 1.1–1.2) |
+
+The page's Game version switch converts any other code.
 
 Checked by comparing the logbook code byte for byte and by loading the same logbooks in each release. The page's Game version switch shows and reads logbooks in kana for the Japanese releases.
 

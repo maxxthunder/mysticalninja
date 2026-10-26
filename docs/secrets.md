@@ -215,7 +215,7 @@ So a US/European logbook works in Japanese 1.1 and 1.2 symbol for symbol by valu
 
 **1.0 keys some symbols differently.** The XOR keys are the field-list bytes, and 1.0's field list
 names different RAM (P1 block at `$1A80`, `$19C6` instead of `$19F6`, items `$60-$94`), so its keys
-differ at data symbols 13 and 37-52. Short codes (6/7 symbols) are the same in every version; full
+differ at data symbols 13, 37, 40, 43, 46, 49 and 52 (counting from 0). Short codes (6/7 symbols) are the same in every version; full
 logbooks for 1.0 need those symbols re-keyed. A 1.1/1.2 logbook is rejected by 1.0.
 
 **Checked in Mesen:** the "Last level" code converted to kana loaded in 1.2, 1.1 and (re-keyed) 1.0
