@@ -2,6 +2,9 @@
 
 Changes to the [password generator](https://maxxthunder.github.io/mysticalninja/). The version is shown at the bottom of the page.
 
+## 1.0.3 (2026-10-26)
+- On iOS Safari, using a slider after loading a code no longer scrolls the page: the control you're touching stays put when the summary above it rewraps.
+
 ## 1.0.2 (2026-10-26)
 - Sliders follow your finger anywhere along them on a phone, and dragging one no longer scrolls the page (iOS Safari only moved them by the thumb).
 

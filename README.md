@@ -2,7 +2,7 @@
 
 # The Legend of the Mystical Ninja — Password Generator & Secrets
 
-**[Open the password generator →](https://maxxthunder.github.io/mysticalninja/)** &nbsp;[![v1.0.2](https://img.shields.io/badge/version-1.0.2-e8553f)](CHANGELOG.md) [![live site](https://img.shields.io/badge/live-github.io-3984ff)](https://maxxthunder.github.io/mysticalninja/)
+**[Open the password generator →](https://maxxthunder.github.io/mysticalninja/)** &nbsp;[![v1.0.3](https://img.shields.io/badge/version-1.0.3-e8553f)](CHANGELOG.md) [![live site](https://img.shields.io/badge/live-github.io-3984ff)](https://maxxthunder.github.io/mysticalninja/)
 
 ![Every zone's starting point, from short logbook codes: Edo, Shikoku, Awa, Harima, Iga, zone 6, Izumo, Ryukyu and the castle prison cell](img/readme/zones.png)
 
