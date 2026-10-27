@@ -2,6 +2,9 @@
 
 Changes to the [password generator](https://maxxthunder.github.io/mysticalninja/). The version is shown at the bottom of the page.
 
+## 1.0.2 (2026-10-26)
+- Sliders follow your finger anywhere along them on a phone, and dragging one no longer scrolls the page (iOS Safari only moved them by the thumb).
+
 ## 1.0.1 (2026-10-26)
 - Logbook codes are compact rows: the zone codes take one line each, and a code's start point and notes share one small line.
 - On phones, dragging the lives, health or story sliders no longer makes the page jump.
