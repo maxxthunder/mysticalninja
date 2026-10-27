@@ -2,6 +2,14 @@
 
 Changes to the [password generator](https://maxxthunder.github.io/mysticalninja/). The version is shown at the bottom of the page.
 
+## 1.0.1 (2026-10-26)
+- Logbook codes are compact rows: the zone codes take one line each, and a code's start point and notes share one small line.
+- On phones, dragging the lives, health or story sliders no longer makes the page jump.
+- A number box can be cleared to type a new value; it no longer snaps back to 0.
+- The big text view scrolls to its top on a phone held sideways.
+- Story steps 6 and 7 in zone 9 are marked ⚠ on Story flags, even while it's closed.
+- Armor and food icons line up with their number boxes; autocorrect is off in the decode box.
+
 ## 1.0.0 (2026-10-26)
 - First release: make or decode logbook passwords for The Legend of the Mystical Ninja on Super Nintendo, full (31 / 55 symbols) or short (6 / 7), for one or two players or Dr. Yang alone.
 - Every field the logbook holds: zone, ryo, lives, health, POW and POW pieces, bombs, weapon level, the four jutsu, helmets, armor, sandals, pizza, slices, hamburgers and the key items, with icons ripped from the game.

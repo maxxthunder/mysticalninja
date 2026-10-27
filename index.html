@@ -92,7 +92,7 @@ input[type=range] { width: 100%; accent-color: var(--brass); }
 .toggles { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 6px; }
 .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 12px; }
 .item { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: center; }
-.item .ico { grid-row: span 2; }
+.item .ico { grid-row: 2; }  /* level with the number box, not the label and box together */
 .item span { font-size: .78rem; color: var(--muted); letter-spacing: .04em; }
 .item { grid-template-columns: auto 1fr auto; }
 .item span:not(.q) { grid-column: 2 / 4; }
@@ -119,30 +119,24 @@ summary { cursor: pointer; color: var(--ink); }
 table { border-collapse: collapse; font-size: .88rem; }
 td, th { border-bottom: 1px solid var(--line); padding: 4px 10px 4px 0; text-align: left; vertical-align: top; }
 .tw { overflow-x: auto; }
-/* codes: one card per password */
+/* codes: one compact row per password, its left edge in its starting zone's colour */
 .codes h2 { font-size: 1.5rem; }
-.code-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 12px; }
-.code-card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; position: relative; }
-.code-card h3 { font: 700 1.05rem var(--body); margin: 0; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.code-card .where { color: var(--muted); font-size: .9rem; margin: 0; }
-.code-card .note { color: var(--muted); font-size: .85rem; margin: 0; }
-.badge { font: 700 .7rem var(--body); letter-spacing: .1em; text-transform: uppercase; border-radius: 3px; padding: 2px 7px; white-space: nowrap; }
-.badge.new { background: var(--brass); color: #fff; position: absolute; top: 0; right: 16px; border-radius: 0 0 4px 4px; padding: 3px 9px; }
-.code-card:has(.badge.new) { padding-top: 20px; }
-.code-card:has(.badge.new) h3 { padding-right: 76px; }
-.code-card button.pw { justify-self: start; background: var(--plate); border-color: transparent; padding: 10px 12px; }
+.code-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 6px; }
+.code-card { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid hsl(calc(var(--z) * 36) 65% 58%); border-radius: 6px;
+  padding: 8px 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.code-card .what { flex: 1 1 180px; min-width: 0; }
+.code-card h3 { font: 700 .95rem var(--body); margin: 0; display: flex; align-items: center; gap: 4px; }
+.code-card h3 .ico { width: 20px; height: 20px; }
+.code-card .new { color: var(--gold); font-size: .85rem; }
+.code-card .where { color: var(--muted); font-size: .82rem; margin: 0; }
+.code-card button.pw { background: var(--plate); border-color: transparent; padding: 6px 8px; }
 .code-card .code { font-size: 16px; }
-/* each card's left edge takes its starting zone's colour */
-.code-card { border-left: 4px solid hsl(calc(var(--z) * 36) 65% 58%); }
-.code-card .where { display: flex; align-items: center; gap: 4px; }
-.code-card .where .ico { width: 24px; height: 24px; }
-.code-card .where .ico:last-of-type { margin-right: 4px; }
 footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: .9rem; color: var(--muted); flex-wrap: wrap; }
 footer a { color: var(--brass); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
 /* big-text view for reading the password while typing it into the game */
 #big { inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; border: 0; padding: 24px 16px; box-sizing: border-box;
   background: var(--plate); color: var(--plate-ink); }
-#big[open] { display: grid; place-content: center; justify-items: center; gap: 18px; overflow-y: auto; text-align: center; container-type: inline-size; }
+#big[open] { display: grid; place-content: safe center; justify-items: center; gap: 18px; overflow-y: auto; text-align: center; container-type: inline-size; }
 #big .summary { font-size: 1.1rem; text-wrap: balance; }
 body:has(#big[open]) { overflow: hidden; }
 .big-code { font-size: min(6.4cqi, 6vh) !important; font-size: round(down, min(6.4cqi, 6vh), 8px) !important; justify-items: center; }
@@ -206,7 +200,7 @@ body:has(#big[open]) { overflow: hidden; }
 
   <div class="decode">
     <div class="row">
-      <input type="text" id="paste" class="mono" maxlength="90" placeholder="6, 7, 31 or 55 symbols" autocomplete="off" spellcheck="false" autocapitalize="off" style="max-width:34ch" aria-label="Logbook to decode">
+      <input type="text" id="paste" class="mono" maxlength="90" placeholder="6, 7, 31 or 55 symbols" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" style="max-width:34ch" aria-label="Logbook to decode">
       <button id="load" type="button">Decode</button>
       <span class="hint" id="paste_hint"></span>
     </div>
@@ -304,7 +298,7 @@ body:has(#big[open]) { overflow: hidden; }
       range-checked. Code: decode $1C:AFC7, encode $1C:ACE5, tables at $02:FD3E.</p>
   </details>
 
-  <footer><a href="https://github.com/maxxthunder/mysticalninja"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>maxxthunder/mysticalninja</a><a href="https://github.com/maxxthunder/mysticalninja/blob/main/CHANGELOG.md">v1.0.0</a></footer>
+  <footer><a href="https://github.com/maxxthunder/mysticalninja"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>maxxthunder/mysticalninja</a><a href="https://github.com/maxxthunder/mysticalninja/blob/main/CHANGELOG.md">v1.0.1</a></footer>
 </div>
 
 <script type="module">
@@ -403,6 +397,9 @@ function codeHTML(pw, mark = {}, set = abc()) {
   return lines.join('');
 }
 
+// leave a number box alone while it's being typed in (clearing it to retype shouldn't snap back to 0); it tidies up on change
+let tidy = false;
+const put = (el, v) => { if (tidy || el !== document.activeElement) el.value = v; };
 function render() {
   const s = state, long = !!s.long;
   form.elements.long.value = String(s.long);
@@ -418,8 +415,8 @@ function render() {
     const r = ryo(p);
     card.querySelector('.plain').hidden = G();
     card.querySelector('.digits').hidden = !G();
-    f('money').value = r ?? '';
-    [p.ryo & 15, p.ryo >> 4 & 15, p.ryo >> 8 & 15, p.ryo >> 12 & 15, p.ryo5].forEach((d, n) => { f('d' + n).value = d; });
+    put(f('money'), r ?? '');
+    [p.ryo & 15, p.ryo >> 4 & 15, p.ryo >> 8 & 15, p.ryo >> 12 & 15, p.ryo5].forEach((d, n) => put(f('d' + n), d));
     $(`p${i}.ryo_out`).textContent = fmtRyo(p);
     for (const [k, , , max, gmax, kind] of NUMS) {
       const el = f(k), v = kind === 'bcd' ? fromBCD(p[k]) : p[k], top = G() ? gmax : k === 'health' ? p.maxHealth : max;
@@ -436,13 +433,15 @@ function render() {
       <span class="num">${ico('pow', 's')}<span class="code">${codeHTML(hex(p.pow, 2), {}, ALPHABET)}</span></span>
       <span class="num"><span class="code">${codeHTML('$' + hex(p.ryo5, 1) + hex(p.ryo, 4), {}, ALPHABET)}</span></span>`;
     for (const [k] of [...FLAGS, ...KEYS]) f(k).checked = !!p[k];
-    for (const [k] of ITEMS) { f(k).max = G() ? 255 : 99; f(k).value = p[k]; }
+    for (const [k] of ITEMS) { f(k).max = G() ? 255 : 99; put(f(k), p[k]); }
   }
   const notes = [];
   if (!long) notes.push('A short code also stores the four jutsu, but the game clears them as the zone starts.');
   if (s.stage === 0 && long) notes.push('A full logbook for zone 1 starts in zone 2: the game moves it there. Use a short code for zone 1.');
   if (s.stage === 8) notes.push(long ? 'There is no zone 8 start point: a full logbook starts where zone 9 does.' : 'There is no zone 8 start point: a short code freezes on a black screen.');
-  if (s.stage >= 8 && long) notes.push(s.story >= 6 ? 'Story steps 6 and 7 crash the game in zone 9.' : 'Starts in the white cell with the mesh door; hit the wall until a door opens.');
+  if (s.stage >= 8 && long) notes.push('Starts in the white cell with the mesh door; hit the wall until a door opens.');
+  // story 6-7 crash zone 9: marked on the slider and on Story flags (shut by default) so the note above stays put while it moves
+  for (const e of [$('story_out'), $('story').closest('details').firstElementChild]) e.classList.toggle('glitch-mark', s.stage >= 8 && long && s.story >= 6);
   if (s.stage === 9 && !long) notes.push('Starts in the barred prison cell, with a short scene.');
   $('stage_note').textContent = notes.join(' ');
   form.elements.ver.value = ver;
@@ -508,6 +507,7 @@ form.addEventListener('input', e => {
   }
   render();
 });
+form.addEventListener('change', e => { if (e.target.type === 'number') { tidy = true; render(); tidy = false; } });
 glitch.addEventListener('change', () => setGlitch(glitch.checked));
 // Max everything, New game and loading a logbook replace your edits: offer to put them back
 let undoTimer;
@@ -681,24 +681,24 @@ $('paste').addEventListener('compositionend', typed);
 
 setGlitch(false);
 
-// [title, where it starts, password, note, true for a code first found here]
+// [title, where it starts (blank for a plain zone start), password, note, true for a code first found here]
 const CODES = [
-  ['Zone 1 · Edo', 'Short code', 'MRbjhj'],
-  ['Zone 2 · Shikoku', 'Short code', '#rM/B/'],
-  ['Zone 3 · Awa', 'Short code', '8hXw0w'],
-  ['Zone 4 · Harima', 'Short code', 'W:3LNL'],
-  ['Zone 5 · Iga', 'Short code', 'k=bPbR'],
-  ['Zone 6', 'Short code', '1tL<H<'],
-  ['Zone 7 · Izumo', 'Short code', '/j#2^2'],
-  ['Zone 8 · Ryukyu', 'Short code', '"?kk5k'],
-  ['Zone 9 · the castle', 'Short code, barred prison cell', '&xT>X>', 'Opens with a short scene.'],
+  ['Zone 1 · Edo', '', 'MRbjhj'],
+  ['Zone 2 · Shikoku', '', '#rM/B/'],
+  ['Zone 3 · Awa', '', '8hXw0w'],
+  ['Zone 4 · Harima', '', 'W:3LNL'],
+  ['Zone 5 · Iga', '', 'k=bPbR'],
+  ['Zone 6', '', '1tL<H<'],
+  ['Zone 7 · Izumo', '', '/j#2^2'],
+  ['Zone 8 · Ryukyu', '', '"?kk5k'],
+  ['Zone 9 · the castle', 'Barred prison cell', '&xT>X>', 'Opens with a short scene.'],
   ['Last level, fully stocked', 'Zone 9, white cell', '8#4V7LprBy4v52Bj@7-TYM?0P7/4By;', 'Full health, weapon Lv 3, all jutsu. Hit the white cell wall until a door opens.'],
   ['Second-to-last level, fully stocked', 'Zone 8, Ryukyu', '*63>^:tH!8d%W!L1G^4MdTH6Q^>HLwW'],
   ['"Unlimited" hamburgers', 'Zone 3, Awaji theme park', 'vxZ++lh:@Ynn3+!$T+KKhG:!<+!+X@r', 'Gives 128 hamburgers: each time your health hits 0 one is eaten for +4 health and no life is lost.'],
   ['255 hamburgers', 'Zone 2', 'b!DQQTnQhTQThQDz*Q991!QD^RBQQvM', 'The most the field holds: 255 lives\' worth of +4 health.', true],
   ['Max kit', 'Zone 2', 'b!DQQZ%$"Rt<5JBy+J--04N?+vkJl<J', '99,999 ryo, POW 19, 39 bombs, all jutsu, 255 of every helmet, armor and whole pizza, every key item. Uses glitch values.', true],
   ['Coin-throw weapon (Lv 4)', 'Zone 2', 'b!DQQTNQDVN>lQDz*Q991!QD^QDN+8Y', 'Weapon level 4: the attack throws coins and each throw costs ryo. Starts with 500 ryo and no spare lives.', true],
-  ['Two players, zone 4', 'Short code', ':jH204;', 'Kid Ying and Dr. Yang together.', true],
+  ['Two players, zone 4', '', ':jH204;', 'Kid Ying and Dr. Yang together.', true],
   ['Two players, last level stocked', 'Zone 9, white cell', 'lj/N0<*kM2%mvyMKh0>$JV/Yb0r%*70kM/%#ryNg0t901v/l*01=*Wt', 'The "Last level" kit for both players.', true],
   ['Zone 8½', 'Zone 9, white cell', '%>H3Hmq^dWL!D@d&"Hp/w>$>+HTLdJQ', 'The "Last level" kit with zone 8½ selected. There is no zone 8 start, so the game uses zone 9\'s.', true],
 ];
@@ -706,10 +706,10 @@ function card([title, where, us, note, isNew]) {
   const s = decode(us).state, pw = encode(s, ver), el = document.createElement('article');
   el.className = 'code-card';
   el.style.setProperty('--z', start(s));
-  const who = [s.players & 1 ? ico('ying') : '', s.players & 2 ? ico('yang') : ''].join('');
-  el.innerHTML = `<h3>${esc(title)}${isNew ? '<span class="badge new">★ New</span>' : ''}</h3><p class="where">${who}${esc(where)}</p>
-    <button type="button" class="pw" aria-label="Load ${esc(spaced(pw))}"><span class="code">${codeHTML(pw)}</span></button>
-    ${note ? `<p class="note">${esc(note)}</p>` : ''}`;
+  const who = s.players === 1 ? '' : (s.players & 1 ? ico('ying') : '') + (s.players & 2 ? ico('yang') : '');  // faces unless it's just Kid Ying
+  el.innerHTML = `<div class="what"><h3>${who}${esc(title)}${isNew ? '<span class="new" title="First found here">★</span>' : ''}</h3>
+    ${where || note ? `<p class="where">${esc([where, note].filter(Boolean).join(' · '))}</p>` : ''}</div>
+    <button type="button" class="pw" aria-label="Load ${esc(spaced(pw))}"><span class="code">${codeHTML(pw)}</span></button>`;
   el.querySelector('.pw').addEventListener('click', () => {
     $('paste').value = spaced(pw);
     load(pw);
