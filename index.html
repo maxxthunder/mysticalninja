@@ -173,7 +173,8 @@ body:has(#big[open]) { overflow: hidden; }
 .hud .bar { display: flex; gap: 2px; background: #fff; padding: 2px; width: max-content; }
 .hud .bar i { width: 4px; height: 12px; background: #ffb500; }
 .hud .bar i.on { background: #f70000; }
-.hud .heads { display: flex; min-height: 20px; }
+.hud .bar { min-width: 98px; min-height: 12px; }  /* room for 16 health and 4 heads, so the HUD doesn't reflow while a slider moves */
+.hud .heads { display: flex; min-height: 20px; min-width: 80px; }
 .hud .heads img { width: 20px; height: 20px; image-rendering: pixelated; }
 .hud .num { display: flex; align-items: center; gap: 4px; }
 .hud .code { font-size: 16px; }
