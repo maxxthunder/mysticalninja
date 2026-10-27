@@ -2,6 +2,9 @@
 
 Changes to the [password generator](https://maxxthunder.github.io/mysticalninja/). The version is shown at the bottom of the page.
 
+## 1.0.5 (2026-10-27)
+- Keyboard shortcuts on a computer: paste a logbook anywhere on the page to decode it, C copies, B opens the big view, Z undoes.
+
 ## 1.0.4 (2026-10-26)
 - Armor and food items have big − and + buttons around their box, plus max; the 0 button and the box's tiny spinner arrows are gone.
 
