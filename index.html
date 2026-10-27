@@ -142,6 +142,22 @@ footer a { color: var(--brass); text-decoration: none; display: inline-flex; ali
 body:has(#big[open]) { overflow: hidden; }
 .big-code { font-size: min(6.4cqi, 6vh) !important; font-size: round(down, min(6.4cqi, 6vh), 8px) !important; justify-items: center; }
 .big-code .line { flex-wrap: wrap; justify-content: center; row-gap: .5em; }
+/* print: a sheet with this logbook and blank rows for writing down the ones the game gives you */
+#sheet { display: none; }
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; color: #000; }
+  body > :not(#sheet) { display: none !important; }
+  #sheet { display: block; font: 11pt/1.4 var(--body); }
+  #sheet h2 { font: 400 16pt var(--display); margin: 0; padding-bottom: 4pt; border-bottom: 2px solid #000; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; }
+  #sheet h2 small { font: 9pt var(--body); }
+  #sheet h3 { font: 700 9pt var(--body); letter-spacing: .1em; margin: 14pt 0 4pt; }
+  #sheet .now { border: 1.5px solid #000; padding: 8pt 10pt; display: grid; gap: 6pt; }
+  #sheet .code { font-size: 24px; }
+  #sheet .gl { filter: brightness(0); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  #sheet .row { border-bottom: 1px solid #000; padding: 12pt 0 4pt; display: grid; grid-template-columns: 6em 1fr; gap: 4pt 10pt; font-size: 9pt; break-inside: avoid; }
+  #sheet .boxes { grid-row: span 2; font: 14pt var(--mono); color: #aaa; letter-spacing: 3pt; }
+}
 @media (max-width: 600px) { .big-code { font-size: round(down, min(8cqi, 6vh), 8px) !important; } }  /* two groups a line on a phone */
 /* typing guide: the entry screen's grid, white tiles on blue */
 .guide { display: grid; gap: 10px; justify-items: center; }
@@ -193,6 +209,7 @@ body:has(#big[open]) { overflow: hidden; }
     <div class="plate-row">
       <button id="big_open" type="button" title="Shortcut: B" aria-keyshortcuts="B">Big text and typing guide</button>
       <button id="copy" class="ghost" type="button" title="Shortcut: C. Pasting anywhere decodes a logbook." aria-keyshortcuts="C">Copy</button>
+      <button id="print" class="ghost" type="button" title="A sheet with this logbook and rows to write down new ones">Print</button>
       <button id="max" class="ghost" type="button">Max everything</button>
       <button id="reset" class="ghost" type="button">New game</button>
       <span class="status" id="status" aria-live="polite"></span>
@@ -299,9 +316,10 @@ body:has(#big[open]) { overflow: hidden; }
       range-checked. Code: decode $1C:AFC7, encode $1C:ACE5, tables at $02:FD3E.</p>
   </details>
 
-  <footer><a href="https://github.com/maxxthunder/mysticalninja"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>maxxthunder/mysticalninja</a><a href="https://github.com/maxxthunder/mysticalninja/blob/main/CHANGELOG.md">v1.0.5</a></footer>
+  <footer><a href="https://github.com/maxxthunder/mysticalninja"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>maxxthunder/mysticalninja</a><a href="https://github.com/maxxthunder/mysticalninja/blob/main/CHANGELOG.md">v1.0.6</a></footer>
 </div>
 
+<section id="sheet" aria-hidden="true"></section>
 <script type="module">
 import { ALPHABET, KANA, VERSIONS, SHOW, GRID, moves, encode, decode, clean, layout, fromBCD, toBCD, ryo } from './mninja.js';
 
@@ -447,6 +465,7 @@ function render() {
   $('stage_note').textContent = notes.join(' ');
   form.elements.ver.value = ver;
   const pw = shown ?? enc(s);
+  try { localStorage.mn = JSON.stringify([ver, pw, base, G()]); } catch {}  // comes back on the next visit
   cells = layout(s);
   const changed = base?.length === pw.length ? [...pw].flatMap((c, i) => c === base[i] ? [] : [i]) : [];
   $('code').innerHTML = $('big_code').innerHTML = codeHTML(pw, Object.fromEntries(changed.map(i => [i, 'chg'])));
@@ -610,6 +629,16 @@ $('copy').onclick = async () => {
 };
 $('big_open').onclick = () => { step = 0; guide(); $('big').showModal(); };
 $('big_close').onclick = () => $('big').close();
+// built on beforeprint for Ctrl+P, and by the button too in case a browser doesn't send it
+const sheet = () => {
+  const pw = shown ?? enc(state), n = pw.length > 31 ? 55 : 31;
+  $('sheet').innerHTML = `<h2>Legend of the Mystical Ninja · Logbook <small>maxxthunder.github.io/mysticalninja</small></h2>
+    <h3>CURRENT LOGBOOK</h3><div class="now"><span>${esc($('big_sum').textContent)}</span><div class="code">${codeHTML(pw)}</div></div>
+    <h3>LOGBOOKS FROM THE GAME · write each new one down</h3>`
+    + `<div class="row"><span>Zone ____</span><span class="boxes">${groups('▢'.repeat(n)).join(' ')}</span><span>Date ______</span></div>`.repeat(n > 31 ? 7 : 10);
+};
+addEventListener('beforeprint', sheet);
+$('print').onclick = () => { sheet(); print(); };
 
 // Fixes for a mistyped logbook: every valid one a single symbol away, likely mix-ups first
 const LOOKALIKE = { o: '0', O: '0', I: 'l', l: 'L', L: 'l', K: 'k', k: 'K', w: 'W', W: 'w', x: 'X', X: 'x', z: 'Z', Z: 'z',
@@ -676,13 +705,16 @@ function load(text) {
   }
   err.className = 'ok';
   err.textContent = `Valid: ${zone(r.state)}, ${r.state.long ? 'full logbook' : 'short code'}.`;
-  const s = r.state;
-  for (const i of [0, 1]) s.p[i] = { ...blank(), ...s.p[i] };
   if ((shown ?? enc(state)) !== t) undoable('Loaded a logbook', msg);
-  state = { ...s, long: s.long ? 1 : 0 };
-  shown = enc(state) === t ? t : null;
+  adopt(r.state, t);
   base = shown ?? enc(state);
   setGlitch(isGlitch(state) || G());
+}
+// a decoded logbook becomes the state, shown as typed while it still encodes the same
+function adopt(s, pw) {
+  for (const i of [0, 1]) s.p[i] = { ...blank(), ...s.p[i] };
+  state = { ...s, long: s.long ? 1 : 0 };
+  shown = enc(state) === pw ? pw : null;
 }
 $('load').onclick = () => load($('paste').value);
 $('paste').addEventListener('keydown', e => { if (e.key === 'Enter') load($('paste').value); });
@@ -709,8 +741,6 @@ document.addEventListener('keydown', e => {
   const b = { c: $('copy'), b: $('big_open'), z: $('status').querySelector('button') }[e.key.toLowerCase()];
   if (b) { e.preventDefault(); b.click(); }
 });
-
-setGlitch(false);
 
 // [title, where it starts (blank for a plain zone start), password, note, true for a code first found here]
 const CODES = [
@@ -766,8 +796,13 @@ function setVer(v) {
   showVersion();
   render();
 }
+// bring back the last logbook made in this browser
+try {
+  const [v, pw, b, g] = JSON.parse(localStorage.mn), r = decode(pw, v);
+  if (r.state && !r.error) { ver = v; adopt(r.state, pw); base = b; glitch.checked = g || isGlitch(state); }
+} catch {}
 showVersion();
-render();
+setGlitch(glitch.checked);
 </script>
 </body>
 </html>

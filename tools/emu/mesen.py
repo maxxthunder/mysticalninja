@@ -10,11 +10,6 @@ q={} ; local fr=0
 function wait(n) for i=1,n do q[#q+1]={} end end
 function press(b,n) n=n or 4; for i=1,n do q[#q+1]=b end; wait(6) end
 function at(fn) q[#q+1]=fn end
-local pend=nil
-function atframe(fn) at(function() pend=fn end) end
-local NMI=emu.read(0xFFEA,emu.memType.snesMemory)+emu.read(0xFFEB,emu.memType.snesMemory)*256
-emu.addMemoryCallback(function() if pend then local f=pend; pend=nil; local ok,e=pcall(f); if not ok then print("ERR "..tostring(e)) end end end, emu.callbackType.exec, NMI, NMI, emu.cpuType.snes, emu.memType.snesMemory)
-function rd(a) return emu.read(a, emu.memType.snesWorkRam) end
 emu.addEventCallback(function()
   local s=table.remove(q,1)
   if s==nil then emu.stop(0) return end

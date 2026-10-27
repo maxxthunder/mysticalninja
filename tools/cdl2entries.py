@@ -1,5 +1,5 @@
 """Merge Mesen CDL dumps into disasm/entries.txt (LoROM). Each run of code bytes starts an instruction.
-Usage: python tools/cdl2entries.py cdl.hex [...]   (hex text from pwlib.lua's cdl_dump)"""
+Usage: python tools/cdl2entries.py cdl.hex [...]   (hex text from tools/emu/logbook.lua's cdl_dump)"""
 import binascii, os, sys
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "disasm", "entries.txt")

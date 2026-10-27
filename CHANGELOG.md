@@ -2,6 +2,10 @@
 
 Changes to the [password generator](https://maxxthunder.github.io/mysticalninja/). The version is shown at the bottom of the page.
 
+## 1.0.6 (2026-10-27)
+- The page remembers your last logbook: reopen it and the code, game version, glitch mode and underlined changes are back.
+- Print button: a sheet with your logbook and blank rows for writing down the logbooks the game gives you.
+
 ## 1.0.5 (2026-10-27)
 - Keyboard shortcuts on a computer: paste a logbook anywhere on the page to decode it, C copies, B opens the big view, Z undoes.
 
